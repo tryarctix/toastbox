@@ -1,5 +1,21 @@
-// ToastBox Full Setup
 (() => {
+  // Inject required styles (keyframes + class)
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes shrink {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+    .toast-progress-animate {
+      animation: shrink linear var(--toast-duration, 4000ms) forwards;
+      transform-origin: left;
+    }
+    .toast:hover .toast-progress-animate {
+      animation-play-state: paused;
+    }
+  `;
+  document.head.appendChild(style);
+
   const themes = {
   classic: {
     base: "flex items-center gap-3 bg-white text-black border p-4 rounded shadow relative",
@@ -147,7 +163,7 @@
     }
   }
 };
-
+  
 
   const animations = {
     slide: ["translate-x-full opacity-0", "translate-x-0 opacity-100"],
@@ -175,7 +191,7 @@
     rainbow: "h-1 bg-gradient-to-r from-pink-500 via-yellow-500 to-green-500"
   };
 
-  // Main Toast function
+  // Toast Function
   window.initSuperToasts = function (messages, options = {}) {
     const {
       theme = "classic",
@@ -215,7 +231,7 @@
       const toast = document.createElement("div");
       toast.className = `${config.base} ${config[type]} ${
         darkMode ? config.dark?.[type] || "" : ""
-      } transform ${startAnim} transition-all duration-500`;
+      } transform ${startAnim} transition-all duration-500 toast`;
 
       toast.innerHTML = `
         <div class="text-xl">${icon}</div>
@@ -227,22 +243,19 @@
         }
         ${
           showProgress
-            ? `<div class="absolute bottom-0 left-0 ${progressClass} w-full scale-x-100 origin-left" style="animation: shrink linear ${duration}ms;"></div>`
+            ? `<div class="absolute bottom-0 left-0 ${progressClass} w-full scale-x-100 toast-progress-animate" style="--toast-duration: ${duration}ms;"></div>`
             : ""
         }
       `;
 
-      toast.querySelector("button")?.addEventListener("click", () =>
-        toast.remove()
-      );
+      toast.querySelector("button")?.addEventListener("click", () => toast.remove());
       if (onClick) toast.addEventListener("click", () => onClick({ type, message }));
 
       container.appendChild(toast);
-      setTimeout(
-        () =>
-          (toast.className = toast.className.replace(startAnim, endAnim)),
-        50
-      );
+      setTimeout(() => {
+        toast.className = toast.className.replace(startAnim, endAnim);
+      }, 50);
+
       setTimeout(() => {
         toast.className = toast.className.replace(endAnim, startAnim);
         setTimeout(() => toast.remove(), 500);
@@ -250,4 +263,3 @@
     });
   };
 })();
-          
