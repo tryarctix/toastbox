@@ -19,6 +19,14 @@
       transition: all 0.4s ease;
     }
     .toast { overflow: hidden; }
+    @keyframes roll { 0% {transform: rotate(-120deg) scale(0)} 100% {transform: rotate(0) scale(1)} }
+    .anim-roll { animation: roll 0.5s ease-out }
+    @keyframes jiggle { 0%,100%{transform:translateX(0)}25%{translateX(-5px)}75%{translateX(5px)} }
+    .anim-jiggle { animation: jiggle 0.6s ease-in-out }
+    @keyframes swing { 0%{transform: rotate(0)}25%{transform: rotate(10deg)}75%{transform: rotate(-10deg)}100%{transform: rotate(0)} }
+    .anim-swing { animation: swing 0.8s ease-in-out }
+    @keyframes pulse { 0%,100%{transform: scale(1)}50%{transform: scale(1.05)} }
+    .anim-pulse { animation: pulse 1s ease-in-out infinite }
   `;
   document.head.appendChild(style);
 
@@ -38,7 +46,11 @@
     terminal: { base: "flex items-center gap-3 bg-black text-green-400 p-4 rounded border border-green-600 font-mono shadow", success: "text-green-500 border-green-400", error: "text-red-500 border-red-400", warning: "text-yellow-500 border-yellow-400", info: "text-cyan-500 border-cyan-400", icon: { success: "🖥️", error: "💣", warning: "⚠️", info: "📡" } },
     aqua:    { base: "flex items-center gap-3 bg-gradient-to-r from-cyan-100 to-blue-200 text-blue-800 p-4 rounded shadow", success: "border border-green-300", error: "border border-red-300", warning: "border border-yellow-300", info: "border border-blue-300", icon: { success: "💧", error: "🌊", warning: "💦", info: "🧊" } },
     forest:  { base: "flex items-center gap-3 bg-green-100 text-green-900 border border-green-400 p-4 rounded shadow", success: "border-green-600 text-green-800", error: "border-red-600 text-red-800", warning: "border-yellow-600 text-yellow-800", info: "border-blue-600 text-blue-800", icon: { success: "🌲", error: "🌋", warning: "🍂", info: "🌿" } },
-    luxury:  { base: "flex items-center gap-3 bg-gradient-to-r from-gray-900 to-black text-yellow-300 p-4 rounded shadow-lg border border-yellow-500", success: "text-green-300 border-green-500", error: "text-red-300 border-red-500", warning: "text-yellow-300 border-yellow-500", info: "text-blue-300 border-blue-500", icon: { success: "👑", error: "💎", warning: "🪙", info: "🧿" } }
+    luxury:  { base: "flex items-center gap-3 bg-gradient-to-r from-gray-900 to-black text-yellow-300 p-4 rounded shadow-lg border border-yellow-500", success: "text-green-300 border-green-500", error: "text-red-300 border-red-500", warning: "text-yellow-300 border-yellow-500", info: "text-blue-300 border-blue-500", icon: { success: "👑", error: "💎", warning: "🪙", info: "🧿" } },
+    sports: { base: "flex items-center gap-3 p-4 rounded shadow bg-white border-t-4", success: "border-green-600 text-green-700", error: "border-red-600 text-red-700", warning: "border-yellow-600 text-yellow-700", info: "border-blue-600 text-blue-700", icon: { success: "🏆", error: "❌", warning: "⚠️", info: "🎯" } },
+    coffee: { base: "flex items-center gap-3 p-4 rounded shadow bg-yellow-50 border", success: "text-green-600 border-green-400", error: "text-red-600 border-red-400", warning: "text-yellow-600 border-yellow-400", info: "text-blue-600 border-blue-400", icon: { success: "☕", error: "🔥", warning: "⚠️", info: "💡" } },
+    sunset: { base: "flex items-center gap-3 p-4 rounded shadow bg-gradient-to-r from-purple-400 to-orange-300 text-white", success: "", error: "", warning: "", info: "", icon: { success: "🌅", error: "🌇", warning: "🌆", info: "🌄" } },
+    midnight: { base: "flex items-center gap-3 p-4 rounded shadow bg-gray-800 text-white", success: "border-green-500 text-green-300", error: "border-red-500 text-red-300", warning: "border-yellow-500 text-yellow-300", info: "border-blue-500 text-blue-300", icon: { success: "🌙", error: "💤", warning: "⭐", info: "✨" } }
   };
 
   const animations = {
@@ -56,7 +68,11 @@
     pop: ["opacity-0 scale-75", "opacity-100 scale-100"],
     "bounce-up": ["translate-y-10 opacity-0", "translate-y-0 opacity-100"],
     stretch: ["scale-y-0", "scale-y-100 opacity-100"],
-    drop: ["translate-y-[-30px] opacity-0", "translate-y-0 opacity-100"]
+    drop: ["translate-y-[-30px] opacity-0", "translate-y-0 opacity-100"],
+    roll: ["anim-roll", "", ""], 
+    jiggle: ["anim-jiggle", "", ""], 
+    swing: ["anim-swing", "", ""], 
+    pulse: ["anim-pulse", "", ""]
   };
 
   const positions = {
@@ -74,7 +90,11 @@
     "bottom-right-corner": "bottom-2 right-2",
     "bottom-left-corner": "bottom-2 left-2",
     "center-left": "top-1/2 left-2 -translate-y-1/2",
-    "center-right": "top-1/2 right-2 -translate-y-1/2"
+    "center-right": "top-1/2 right-2 -translate-y-1/2",
+    "top-left-edge": "top-0 left-0 w-full flex justify-start",
+    "bottom-right-edge": "bottom-0 right-0",
+    "center-top": "top-0 left-1/2 -translate-x-1/2",
+    "center-bottom": "bottom-0 left-1/2 -translate-x-1/2"
   };
 
   const progressBars = {
@@ -92,7 +112,11 @@
     glassline: "h-1 bg-white/40 backdrop-blur-sm",
     aqua: "h-1 bg-gradient-to-r from-cyan-400 to-blue-500",
     fire: "h-1 bg-gradient-to-r from-yellow-500 via-red-500 to-pink-600",
-    carbon: "h-1 bg-gradient-to-r from-gray-700 to-gray-900"
+    carbon: "h-1 bg-gradient-to-r from-gray-700 to-gray-900",
+    "pulse-stripe": "h-1 bg-gray-400 bg-[length:5px_5px] animate-pulse",
+    shine: "h-1 bg-white/50 animate-pulse",
+    pulse: "h-2 bg-green-400 animate-pulse",
+    "gradient-stripe": "h-1 bg-gradient-to-r from-purple-400 via-pink-400 to-red-400 bg-[length:20px_20px] animate-pulse"
   };
 
   window.initSuperToasts = function(messages, options = {}) {
