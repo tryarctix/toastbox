@@ -296,7 +296,7 @@
       position = "top-right",
       duration = 4000,
       showProgress = true,
-      progressStyle = "default",
+      progressStyle = "neon",
       showClose = true,
       queueMode = "stack",
       darkMode = false,
