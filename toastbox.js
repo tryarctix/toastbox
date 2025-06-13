@@ -7,14 +7,13 @@
   // ========================
   // CORE STYLES
   // ========================
-  const style = document.createElement('style');
+  const style = document.createElement("style");
   style.textContent = `
     @keyframes shrink {
       from { transform: scaleX(1); }
       to { transform: scaleX(0); }
     }
     .toast-progress-animate {
-      animation: shrink linear var(--toast-duration) forwards;
       transform-origin: left;
     }
     .toast:hover .toast-progress-animate {
@@ -27,19 +26,18 @@
     }
     .toast {
       overflow: hidden;
-      transition: all 0.5s ease;
     }
-    /* Animation keyframes */
-    @keyframes roll { 0% { transform: rotate(-120deg) scale(0); } 100% { transform: rotate(0) scale(1); } }
-    @keyframes jiggle { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-    @keyframes swing { 0% { transform: rotate(0); } 25% { transform: rotate(10deg); } 75% { transform: rotate(-10deg); } 100% { transform: rotate(0); } }
-    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    .anim-roll { animation: roll 0.5s ease-out; }
-    .anim-jiggle { animation: jiggle 0.6s ease-in-out; }
-    .anim-swing { animation: swing 0.8s ease-in-out; }
-    .anim-pulse { animation: pulse 1s ease-in-out infinite; }
+    @keyframes roll { 0% {transform: rotate(-120deg) scale(0)} 100% {transform: rotate(0) scale(1)} }
+    .anim-roll { animation: roll 0.5s ease-out }
+    @keyframes jiggle { 0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)} }
+    .anim-jiggle { animation: jiggle 0.6s ease-in-out }
+    @keyframes swing { 0%{transform: rotate(0)}25%{transform: rotate(10deg)}75%{transform: rotate(-10deg)}100%{transform: rotate(0)} }
+    .anim-swing { animation: swing 0.8s ease-in-out }
+    @keyframes pulse { 0%,100%{transform: scale(1)}50%{transform: scale(1.05)} }
+    .anim-pulse { animation: pulse 1s ease-in-out infinite }
   `;
   document.head.appendChild(style);
+
 
   // ========================
   // THEMES (20 options)
@@ -334,8 +332,16 @@
         <div class="text-xl">${icon}</div>
         <div class="flex-1 text-sm pr-6">${message}</div>
         ${showClose ? '<button class="absolute top-2 right-3 text-lg font-bold hover:opacity-50">&times;</button>' : ""}
-        ${showProgress ? `<div class="absolute bottom-0 left-0 ${pb} w-full toast-progress-animate" style="--toast-duration: ${duration}ms;"></div>` : ""}
       `;
+      
+      if (showProgress) {
+        const progressDiv = document.createElement("div");
+        progressDiv.className = `absolute bottom-0 left-0 ${pb} w-full toast-progress-animate`;
+        progressDiv.style.animation = `shrink linear ${duration}ms forwards`;
+        progressDiv.style.transformOrigin = "left";
+        toast.appendChild(progressDiv);
+      }
+
 
       // Add click handlers
       toast.querySelector("button")?.addEventListener("click", () => {
