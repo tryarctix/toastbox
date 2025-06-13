@@ -290,18 +290,18 @@
   // CORE FUNCTION
   // ========================
   window.initSuperToasts = function(messages, options = {}) {
-    const {
-      theme = "glass",
-      animation = "slide",
-      position = "top-right",
-      duration = 4000,
-      showProgress = true,
-      progressStyle = "neon",
-      showClose = true,
-      queueMode = "stack",
-      darkMode = false,
-      onClick = null
-    } = options;
+    const options = {
+      theme: "glass",        // Modern, semi-transparent look with blur effect
+      animation: "slide",    // Smooth slide-in animation (universally clean)
+      position: "top-right", // Standard UX placement for notifications
+      duration: 4000,        // 4 seconds (optimal for readability)
+      showProgress: true,    // Visual timer improves UX
+      progressStyle: "glassline", // Subtle white/glass effect (matches "glass" theme)
+      showClose: true,       // Lets users dismiss manually
+      queueMode: "stack",    // New toasts stack neatly
+      darkMode: false,       // Auto-adapts to theme (or set `true` for dark UIs)
+      onClick: null          // No action unless specified
+    };
 
     const cfg = themes[theme] || themes.classic;
     const [startAnim, endAnim] = animations[animation] || animations.slide;
