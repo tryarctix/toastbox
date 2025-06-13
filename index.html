@@ -9,6 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="toastbox.js"></script>
+  <script src="toastbox.min.js"></script>
   <style>
     /* Custom styles */
     .theme-card {
@@ -43,6 +44,8 @@
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 md:p-8 font-sans">
+  <input type="hidden" id="type" value="success">
+  <input type="hidden" id="theme" value="classic">
   <div id="toastContainer" class="fixed z-50"></div>
 
   <div class="max-w-7xl mx-auto">
@@ -514,26 +517,27 @@
     
     function updateCodePreview(config) {
       if (!config) {
+        const themeElement = document.getElementById('theme');
         config = {
-          message: document.getElementById('msg').value,
-          tags: [document.getElementById('type').value],
-          options: {
-            theme: document.getElementById('theme').value,
-            animation: document.getElementById('anim').value,
-            position: document.getElementById('position').value,
-            duration: +document.getElementById('duration').value,
-            showProgress: document.getElementById('progressCheck').checked,
-            progressStyle: document.getElementById('progress').value,
-            showClose: document.getElementById('closeCheck').checked,
-            queueMode: document.getElementById('replaceCheck').checked ? "replace" : "stack",
-            darkMode: document.getElementById('darkCheck').checked,
-            icon: document.getElementById('icon').value,
-            width: document.getElementById('width').value,
-            maxWidth: document.getElementById('maxWidth').value,
-            borderRadius: document.getElementById('borderRadius').value,
-            padding: document.getElementById('padding').value,
-            customClass: document.getElementById('customClass').value
-          }
+            message: document.getElementById('msg').value,
+            tags: [document.getElementById('type').value],
+            options: {
+                theme: themeElement ? themeElement.value : 'classic', // Add fallback
+                animation: document.getElementById('anim').value,
+                position: document.getElementById('position').value,
+                duration: +document.getElementById('duration').value,
+                showProgress: document.getElementById('progressCheck').checked,
+                progressStyle: document.getElementById('progress').value,
+                showClose: document.getElementById('closeCheck').checked,
+                queueMode: document.getElementById('replaceCheck').checked ? "replace" : "stack",
+                darkMode: document.getElementById('darkCheck').checked,
+                icon: document.getElementById('icon').value,
+                width: document.getElementById('width').value,
+                maxWidth: document.getElementById('maxWidth').value,
+                borderRadius: document.getElementById('borderRadius').value,
+                padding: document.getElementById('padding').value,
+                customClass: document.getElementById('customClass').value
+            }
         };
       }
       
