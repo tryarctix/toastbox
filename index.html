@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ToastBox Advanced Playground</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="toastbox.js"></script>
+  <style>
+    /* Custom styles */
+    .theme-card {
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .theme-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .toast-type-btn {
+      transition: all 0.2s ease;
+    }
+    .toast-type-btn.active {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 2px currentColor;
+    }
+    .animate-pulse-slow {
+      animation: pulse 3s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4 md:p-8 font-sans">
+  <div id="toastContainer" class="fixed z-50"></div>
+
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 flex items-center gap-3">
+          <span class="bg-blue-100 text-blue-800 p-2 rounded-lg">
+            <i class="fas fa-bolt"></i>
+          </span>
+          ToastBox Playground
+        </h1>
+        <p class="text-gray-600 mt-2">Interactive demo for exploring toast notifications</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="showAllTypes()" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all flex items-center gap-2">
+          <i class="fas fa-layer-group"></i> Show All Types
+        </button>
+        <button onclick="showRandomToast()" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-all flex items-center gap-2">
+          <i class="fas fa-random"></i> Random
+        </button>
+        <button onclick="clearAllToasts()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all flex items-center gap-2">
+          <i class="fas fa-trash"></i> Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-6">
+      <!-- Left Panel -->
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+        <!-- Type Selector -->
+        <div class="mb-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-3">Message Type</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button onclick="setType('success')" class="toast-type-btn success-btn bg-green-100 text-green-800 p-3 rounded-lg flex flex-col items-center">
+              <i class="fas fa-check-circle text-xl mb-1"></i>
+              <span>Success</span>
+            </button>
+            <button onclick="setType('error')" class="toast-type-btn error-btn bg-red-100 text-red-800 p-3 rounded-lg flex flex-col items-center">
+              <i class="fas fa-times-circle text-xl mb-1"></i>
+              <span>Error</span>
+            </button>
+            <button onclick="setType('warning')" class="toast-type-btn warning-btn bg-yellow-100 text-yellow-800 p-3 rounded-lg flex flex-col items-center">
+              <i class="fas fa-exclamation-triangle text-xl mb-1"></i>
+              <span>Warning</span>
+            </button>
+            <button onclick="setType('info')" class="toast-type-btn info-btn bg-blue-100 text-blue-800 p-3 rounded-lg flex flex-col items-center">
+              <i class="fas fa-info-circle text-xl mb-1"></i>
+              <span>Info</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Message Content</label>
+          <div class="relative">
+            <textarea id="msg" rows="2" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">Operation completed successfully!</textarea>
+            <button onclick="document.getElementById('msg').value = ''" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Configuration Tabs -->
+        <div class="mb-6">
+          <div class="flex border-b">
+            <button class="tab-btn active px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600" onclick="switchTab('basic')">
+              <i class="fas fa-cog mr-2"></i>Basic
+            </button>
+            <button class="tab-btn px-4 py-2 font-medium text-gray-500 hover:text-gray-700" onclick="switchTab('advanced')">
+              <i class="fas fa-sliders-h mr-2"></i>Advanced
+            </button>
+            <button class="tab-btn px-4 py-2 font-medium text-gray-500 hover:text-gray-700" onclick="switchTab('themes')">
+              <i class="fas fa-palette mr-2"></i>Themes
+            </button>
+          </div>
+
+          <!-- Basic Tab -->
+          <div id="basicTab" class="tab-content pt-4">
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                <select id="position" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option>top-right</option>
+                  <option>top-left</option>
+                  <option>top-center</option>
+                  <option>center</option>
+                  <option>bottom-right</option>
+                  <option>bottom-left</option>
+                  <option>bottom-center</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Animation</label>
+                <select id="anim" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option>slide</option>
+                  <option>fade</option>
+                  <option>zoom</option>
+                  <option>bounce</option>
+                  <option>flip</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Duration (ms)</label>
+                <input id="duration" type="number" value="4000" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Progress Style</label>
+                <select id="progress" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option>default</option>
+                  <option>neon</option>
+                  <option>glass</option>
+                  <option>bold</option>
+                  <option>rainbow</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+              <label class="flex items-center space-x-2">
+                <input id="progressCheck" type="checkbox" checked class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                <span class="text-sm text-gray-700">Progress</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <input id="closeCheck" type="checkbox" checked class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                <span class="text-sm text-gray-700">Close Button</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <input id="darkCheck" type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                <span class="text-sm text-gray-700">Dark Mode</span>
+              </label>
+              <label class="flex items-center space-x-2">
+                <input id="replaceCheck" type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                <span class="text-sm text-gray-700">Replace Mode</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Advanced Tab -->
+          <div id="advancedTab" class="tab-content hidden pt-4">
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Width</label>
+                <input id="width" type="text" placeholder="300px" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Max Width</label>
+                <input id="maxWidth" type="text" placeholder="80%" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Border Radius</label>
+                <input id="borderRadius" type="text" placeholder="8px" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Padding</label>
+                <input id="padding" type="text" placeholder="16px" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Custom Class</label>
+                <input id="customClass" type="text" placeholder="my-toast-class" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Custom Icon</label>
+                <select id="icon" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">Default</option>
+                  <option value="check">Check</option>
+                  <option value="info">Info</option>
+                  <option value="warning">Warning</option>
+                  <option value="error">Error</option>
+                  <option value="heart">Heart</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Themes Tab -->
+          <div id="themesTab" class="tab-content hidden pt-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <div onclick="setTheme('classic')" class="theme-card bg-blue-500 text-white p-3 rounded-lg cursor-pointer flex items-center justify-center">
+                Classic
+              </div>
+              <div onclick="setTheme('flat')" class="theme-card bg-blue-600 text-white p-3 rounded-lg cursor-pointer flex items-center justify-center">
+                Flat
+              </div>
+              <div onclick="setTheme('glass')" class="theme-card bg-blue-400/30 backdrop-blur-md border border-blue-200 text-blue-800 p-3 rounded-lg cursor-pointer flex items-center justify-center">
+                Glass
+              </div>
+              <div onclick="setTheme('neon')" class="theme-card bg-blue-400 text-white shadow-lg shadow-blue-400/30 p-3 rounded-lg cursor-pointer flex items-center justify-center">
+                Neon
+              </div>
+              <div onclick="setTheme('material')" class="theme-card bg-blue-500 text-white shadow-md p-3 rounded-lg cursor-pointer flex items-center justify-center">
+                Material
+              </div>
+              <div onclick="setTheme('bubble')" class="theme-card bg-blue-400 text-white rounded-full p-3 cursor-pointer flex items-center justify-center">
+                Bubble
+              </div>
+              <div onclick="setTheme('retro')" class="theme-card bg-amber-500 text-white p-3 rounded-lg cursor-pointer flex items-center justify-center">
+                Retro
+              </div>
+              <div onclick="setTheme('gradient')" class="theme-card bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-lg cursor-pointer flex items-center justify-center">
+                Gradient
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Show Toast Button -->
+        <button onclick="showToast()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
+          <i class="fas fa-paper-plane"></i> Show Toast Notification
+        </button>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="space-y-6">
+        <!-- Code Preview -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <i class="fas fa-code text-blue-500"></i>
+              Generated Code
+            </h2>
+            <button onclick="copyCode()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-lg flex items-center gap-1 transition-colors">
+              <i class="far fa-copy"></i> Copy
+            </button>
+          </div>
+          <pre id="previewCode" class="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-auto max-h-80 custom-scrollbar language-javascript"></pre>
+        </div>
+
+        <!-- History -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <i class="fas fa-history text-blue-500"></i>
+              Toast History
+            </h2>
+            <button onclick="clearHistory()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-lg flex items-center gap-1 transition-colors">
+              <i class="fas fa-trash-alt"></i> Clear
+            </button>
+          </div>
+          <div id="historyList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+            <!-- History items will appear here -->
+          </div>
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fas fa-magic text-blue-500"></i>
+            Quick Presets
+          </h2>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="loadPreset('success')" class="bg-green-100 hover:bg-green-200 text-green-800 p-2 rounded-lg text-sm transition-colors flex items-center gap-1">
+              <i class="fas fa-check-circle"></i> Success
+            </button>
+            <button onclick="loadPreset('error')" class="bg-red-100 hover:bg-red-200 text-red-800 p-2 rounded-lg text-sm transition-colors flex items-center gap-1">
+              <i class="fas fa-times-circle"></i> Error
+            </button>
+            <button onclick="loadPreset('warning')" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 p-2 rounded-lg text-sm transition-colors flex items-center gap-1">
+              <i class="fas fa-exclamation-triangle"></i> Warning
+            </button>
+            <button onclick="loadPreset('info')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 p-2 rounded-lg text-sm transition-colors flex items-center gap-1">
+              <i class="fas fa-info-circle"></i> Info
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize UI
+    document.addEventListener('DOMContentLoaded', function() {
+      setType('success'); // Default to success type
+      updateCodePreview();
+    });
+
+    // Type selection
+    function setType(type) {
+      document.getElementById('type').value = type;
+      
+      // Update active button
+      document.querySelectorAll('.toast-type-btn').forEach(btn => {
+        btn.classList.remove('active', 'ring-2', 'ring-offset-2');
+      });
+      
+      const activeBtn = document.querySelector(`.${type}-btn`);
+      activeBtn.classList.add('active', 'ring-2', 'ring-offset-2');
+      
+      // Set appropriate ring color based on type
+      const colorMap = {
+        success: 'ring-green-500',
+        error: 'ring-red-500',
+        warning: 'ring-yellow-500',
+        info: 'ring-blue-500'
+      };
+      activeBtn.classList.add(colorMap[type]);
+      
+      // Update message placeholder based on type
+      const messageMap = {
+        success: 'Operation completed successfully!',
+        error: 'Something went wrong! Please try again.',
+        warning: 'Warning: This action cannot be undone.',
+        info: 'Information: New update available.'
+      };
+      document.getElementById('msg').value = messageMap[type] || 'Notification message';
+    }
+
+    // Theme selection
+    function setTheme(theme) {
+      document.getElementById('theme').value = theme;
+      
+      // Update active theme card
+      document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+      });
+      
+      // Find the clicked theme card and highlight it
+      const themeCards = document.querySelectorAll('.theme-card');
+      for (let card of themeCards) {
+        if (card.textContent.trim().toLowerCase() === theme) {
+          card.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+          break;
+        }
+      }
+    }
+
+    // Tab switching
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'text-blue-600', 'border-blue-600');
+        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+      });
+      
+      const activeTab = event.currentTarget;
+      activeTab.classList.add('active', 'text-blue-600', 'border-blue-600');
+      activeTab.classList.remove('text-gray-500', 'hover:text-gray-700');
+    }
+
+    // Toast history
+    let toastHistory = [];
+    const maxHistoryItems = 8;
+    
+    function addToHistory(config) {
+      toastHistory.unshift(config);
+      if (toastHistory.length > maxHistoryItems) {
+        toastHistory.pop();
+      }
+      updateHistoryDisplay();
+    }
+    
+    function updateHistoryDisplay() {
+      const historyList = document.getElementById('historyList');
+      historyList.innerHTML = '';
+      
+      if (toastHistory.length === 0) {
+        historyList.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">No history yet</p>';
+        return;
+      }
+      
+      toastHistory.forEach((item, index) => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'bg-gray-50 hover:bg-gray-100 p-3 rounded-lg cursor-pointer transition-colors group';
+        historyItem.innerHTML = `
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-medium px-2 py-1 rounded ${getTypeBadgeClass(item.tags[0])}">
+                ${item.tags[0]}
+              </span>
+              <span class="text-sm text-gray-700 truncate">${item.message.substring(0, 30)}${item.message.length > 30 ? '...' : ''}</span>
+            </div>
+            <button onclick="replayToast(${index}, event)" class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-blue-600 transition-opacity">
+              <i class="fas fa-redo text-xs"></i>
+            </button>
+          </div>
+        `;
+        historyItem.addEventListener('click', () => replayToast(index));
+        historyList.appendChild(historyItem);
+      });
+    }
+    
+    function getTypeBadgeClass(type) {
+      const typeClasses = {
+        success: 'bg-green-100 text-green-800',
+        error: 'bg-red-100 text-red-800',
+        warning: 'bg-yellow-100 text-yellow-800',
+        info: 'bg-blue-100 text-blue-800'
+      };
+      return typeClasses[type] || 'bg-gray-100 text-gray-800';
+    }
+    
+    function replayToast(index, event) {
+      if (event) event.stopPropagation();
+      const config = toastHistory[index];
+      showToastWithConfig(config);
+    }
+    
+    function clearHistory() {
+      toastHistory = [];
+      updateHistoryDisplay();
+    }
+
+    // Toast functions
+    function showToast() {
+      const msg = document.getElementById('msg').value;
+      const type = document.getElementById('type').value;
+      const theme = document.getElementById('theme').value;
+      const anim = document.getElementById('anim').value;
+      const position = document.getElementById('position').value;
+      const duration = +document.getElementById('duration').value;
+      const progressStyle = document.getElementById('progress').value;
+      const showProgress = document.getElementById('progressCheck').checked;
+      const showClose = document.getElementById('closeCheck').checked;
+      const darkMode = document.getElementById('darkCheck').checked;
+      const queueMode = document.getElementById('replaceCheck').checked ? "replace" : "stack";
+      const icon = document.getElementById('icon').value;
+      const width = document.getElementById('width').value;
+      const maxWidth = document.getElementById('maxWidth').value;
+      const borderRadius = document.getElementById('borderRadius').value;
+      const padding = document.getElementById('padding').value;
+      const customClass = document.getElementById('customClass').value;
+      
+      const config = {
+        message: msg,
+        tags: [type],
+        options: {
+          theme,
+          animation: anim,
+          position,
+          duration,
+          showProgress,
+          progressStyle,
+          showClose,
+          queueMode,
+          darkMode,
+          icon,
+          width,
+          maxWidth,
+          borderRadius,
+          padding,
+          customClass
+        }
+      };
+      
+      addToHistory(config);
+      showToastWithConfig(config);
+    }
+    
+    function showToastWithConfig(config) {
+      const { message, tags, options } = config;
+      
+      initSuperToasts([{ message, tags }], options);
+      updateCodePreview(config);
+    }
+    
+    function updateCodePreview(config) {
+      if (!config) {
+        config = {
+          message: document.getElementById('msg').value,
+          tags: [document.getElementById('type').value],
+          options: {
+            theme: document.getElementById('theme').value,
+            animation: document.getElementById('anim').value,
+            position: document.getElementById('position').value,
+            duration: +document.getElementById('duration').value,
+            showProgress: document.getElementById('progressCheck').checked,
+            progressStyle: document.getElementById('progress').value,
+            showClose: document.getElementById('closeCheck').checked,
+            queueMode: document.getElementById('replaceCheck').checked ? "replace" : "stack",
+            darkMode: document.getElementById('darkCheck').checked,
+            icon: document.getElementById('icon').value,
+            width: document.getElementById('width').value,
+            maxWidth: document.getElementById('maxWidth').value,
+            borderRadius: document.getElementById('borderRadius').value,
+            padding: document.getElementById('padding').value,
+            customClass: document.getElementById('customClass').value
+          }
+        };
+      }
+      
+      const optionsStr = JSON.stringify(config.options, null, 2)
+        .replace(/"([^"]+)":/g, '$1:')
+        .replace(/"(\d+)"/g, '$1');
+      
+      document.getElementById('previewCode').innerHTML = Prism.highlight(
+        `initSuperToasts([{ message: "${config.message}", tags: ["${config.tags[0]}"] }], ${optionsStr});`,
+        Prism.languages.javascript,
+        'javascript'
+      );
+    }
+    
+    function copyCode() {
+      const code = document.getElementById('previewCode').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        // Show a confirmation toast
+        initSuperToasts([{ message: "Code copied to clipboard!", tags: ["success"] }], {
+          theme: 'flat',
+          position: 'bottom-right',
+          duration: 2000
+        });
+      });
+    }
+    
+    // Show all types at once
+    function showAllTypes() {
+      const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+      const types = ['success', 'error', 'warning', 'info'];
+      const themes = ['flat', 'glass', 'gradient', 'material'];
+      const animations = ['slide', 'fade', 'bounce', 'flip'];
+      
+      types.forEach((type, i) => {
+        setTimeout(() => {
+          initSuperToasts([{
+            message: `This is a ${type} message`,
+            tags: [type]
+          }], {
+            theme: themes[i % themes.length],
+            position: positions[i % positions.length],
+            animation: animations[i % animations.length],
+            duration: 3000,
+            showProgress: true
+          });
+        }, i * 500);
+      });
+    }
+    
+    // Random toast generator
+    function showRandomToast() {
+      const messages = [
+        "Action completed successfully!",
+        "Error: Operation failed",
+        "Warning: This cannot be undone",
+        "Information: New update available",
+        "File uploaded successfully",
+        "Connection timeout",
+        "Payment processed",
+        "Login failed - invalid credentials",
+        "Your account has been created",
+        "Storage limit reached"
+      ];
+      
+      const types = ['success', 'error', 'warning', 'info'];
+      const themes = ['classic', 'flat', 'glass', 'neon', 'material', 'gradient'];
+      const anims = ['slide', 'fade', 'zoom', 'bounce', 'flip', 'pop'];
+      const positions = ['top-right', 'top-left', 'bottom-right', 'bottom-left', 'top-center'];
+      
+      const randomType = types[Math.floor(Math.random() * types.length)];
+      setType(randomType);
+      
+      document.getElementById('msg').value = messages[Math.floor(Math.random() * messages.length)];
+      document.getElementById('theme').value = themes[Math.floor(Math.random() * themes.length)];
+      document.getElementById('anim').value = anims[Math.floor(Math.random() * anims.length)];
+      document.getElementById('position').value = positions[Math.floor(Math.random() * positions.length)];
+      document.getElementById('duration').value = 2000 + Math.floor(Math.random() * 5000);
+      document.getElementById('progress').value = ['default', 'neon', 'glass', 'bold'][Math.floor(Math.random() * 4)];
+      document.getElementById('progressCheck').checked = Math.random() > 0.3;
+      document.getElementById('closeCheck').checked = Math.random() > 0.3;
+      document.getElementById('darkCheck').checked = Math.random() > 0.7;
+      document.getElementById('replaceCheck').checked = Math.random() > 0.7;
+      
+      showToast();
+    }
+    
+    function clearAllToasts() {
+      // This would depend on your toast library's API
+      console.log("Clear all toasts functionality would go here");
+      initSuperToasts([{ message: "All toasts cleared", tags: ["info"] }], {
+        theme: 'flat',
+        position: 'top-center',
+        duration: 2000
+      });
+    }
+    
+    // Preset loader
+    function loadPreset(preset) {
+      const presets = {
+        success: {
+          msg: "Operation completed successfully!",
+          type: "success",
+          theme: "flat",
+          anim: "slide",
+          position: "top-right",
+          duration: 3000,
+          progress: "default",
+          showProgress: true,
+          showClose: true,
+          darkMode: false,
+          replaceMode: false
+        },
+        error: {
+          msg: "Something went wrong! Please try again.",
+          type: "error",
+          theme: "flat",
+          anim: "bounce",
+          position: "top-center",
+          duration: 5000,
+          progress: "bold",
+          showProgress: true,
+          showClose: true,
+          darkMode: false,
+          replaceMode: false
+        },
+        warning: {
+          msg: "Warning: This action cannot be undone.",
+          type: "warning",
+          theme: "retro",
+          anim: "flip",
+          position: "bottom-right",
+          duration: 4000,
+          progress: "striped",
+          showProgress: true,
+          showClose: true,
+          darkMode: false,
+          replaceMode: false
+        },
+        info: {
+          msg: "Information: New update available.",
+          type: "info",
+          theme: "glass",
+          anim: "fade",
+          position: "top-left",
+          duration: 3500,
+          progress: "glass",
+          showProgress: true,
+          showClose: true,
+          darkMode: false,
+          replaceMode: false
+        }
+      };
+      
+      const presetConfig = presets[preset];
+      if (!presetConfig) return;
+      
+      setType(presetConfig.type);
+      document.getElementById('msg').value = presetConfig.msg;
+      document.getElementById('theme').value = presetConfig.theme;
+      document.getElementById('anim').value = presetConfig.anim;
+      document.getElementById('position').value = presetConfig.position;
+      document.getElementById('duration').value = presetConfig.duration;
+      document.getElementById('progress').value = presetConfig.progress;
+      document.getElementById('progressCheck').checked = presetConfig.showProgress;
+      document.getElementById('closeCheck').checked = presetConfig.showClose;
+      document.getElementById('darkCheck').checked = presetConfig.darkMode;
+      document.getElementById('replaceCheck').checked = presetConfig.replaceMode;
+      
+      updateCodePreview();
+    }
+  </script>
+</body>
+</html>
