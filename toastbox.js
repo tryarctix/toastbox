@@ -353,6 +353,11 @@
       // Animate in
       setTimeout(() => {
         toast.className = toast.className.replace(startAnim, endAnim);
+        const pb = toast.querySelector(".toast-progress-animate");
+        if (pb) {
+          pb.style.animation = `shrink linear ${duration}ms forwards`;
+          pb.style.transformOrigin = 'left';
+        }
       }, 20);
 
       // Auto-remove after duration
