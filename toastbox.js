@@ -291,7 +291,7 @@
   // ========================
   window.initSuperToasts = function(messages, options = {}) {
     const {
-      theme = "classic",
+      theme = "glass",
       animation = "slide",
       position = "top-right",
       duration = 4000,
