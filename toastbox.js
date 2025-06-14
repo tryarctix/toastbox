@@ -1,184 +1,4 @@
-/**
- * SuperToasts v2.0 - Complete Toast Notification System
- * Features: 20 themes, 18 animations, 18 positions, 18 progress styles
- * No dependencies - Works with Tailwind CSS
- */
-(function () {
-    // Browser support check
-    if (!document.createElement || !document.body || !window) {
-        console.error('Required browser features not available');
-        return;
-    }
-
-    // ========================
-    // CORE STYLES
-    // ========================
-    const style = document.createElement("style");
-    style.textContent = `
-    @keyframes shrink {
-      from { transform: scaleX(1); }
-      to { transform: scaleX(0); }
-    }
-    .toast-progress-animate {
-      transform-origin: left;
-    }
-    .toast:hover .toast-progress-animate {
-      animation-play-state: paused;
-    }
-    .toast-exit {
-      opacity: 0;
-      transform: scale(0.95);
-      transition: all 0.4s ease;
-    }
-    .toast {
-      overflow: hidden;
-    }
-    @keyframes roll {
-  from { transform: translateX(-100%) rotate(-360deg); opacity: 0; }
-  to { transform: translateX(0) rotate(0deg); opacity: 1; }
-}
-.animate-roll { animation: roll 0.8s ease-out; }
-
-@keyframes jiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(5deg); }
-  75% { transform: rotate(-5deg); }
-}
-.animate-jiggle { animation: jiggle 0.6s ease-in-out; }
-
-@keyframes swing {
-  20% { transform: rotate(15deg); }
-  40% { transform: rotate(-10deg); }
-  60% { transform: rotate(5deg); }
-  80% { transform: rotate(-5deg); }
-  100% { transform: rotate(0deg); }
-}
-.animate-swing { animation: swing 0.8s ease-in-out; }
-
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.75; }
-  100% { transform: scale(1); opacity: 1; }
-}
-.animate-pulse { animation: pulse 1s ease-in-out; }
-
-@keyframes flash {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-.animate-flash { animation: flash 1s linear; }
-
-@keyframes wobble {
-  0% { transform: translateX(0%); }
-  15% { transform: translateX(-25%) rotate(-5deg); }
-  30% { transform: translateX(20%) rotate(3deg); }
-  45% { transform: translateX(-15%) rotate(-3deg); }
-  60% { transform: translateX(10%) rotate(2deg); }
-  75% { transform: translateX(-5%) rotate(-1deg); }
-  100% { transform: translateX(0%); }
-}
-.animate-wobble { animation: wobble 0.9s ease-in-out; }
-
-@keyframes tada {
-  0% { transform: scale(1); }
-  10%, 20% { transform: scale(0.9) rotate(-3deg); }
-  30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
-  40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
-  100% { transform: scale(1) rotate(0); }
-}
-.animate-tada { animation: tada 1s ease-in-out; }
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-8px); }
-  50% { transform: translateX(8px); }
-  75% { transform: translateX(-4px); }
-}
-.animate-shake { animation: shake 0.5s ease-in-out; }
-
-@keyframes swirl {
-  from { transform: rotate(0deg) scale(0); opacity: 0; }
-  to { transform: rotate(720deg) scale(1); opacity: 1; }
-}
-.animate-swirl { animation: swirl 1s ease-out; }
-
-@keyframes explode {
-  0% { transform: scale(0.5); opacity: 0; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1); }
-}
-.animate-explode { animation: explode 0.6s ease-in-out; }
-
-@keyframes rubber {
-  0% { transform: scale3d(1, 1, 1); }
-  30% { transform: scale3d(1.25, 0.75, 1); }
-  40% { transform: scale3d(0.75, 1.25, 1); }
-  50% { transform: scale3d(1.15, 0.85, 1); }
-  65% { transform: scale3d(.95, 1.05, 1); }
-  75% { transform: scale3d(1.05, .95, 1); }
-  100% { transform: scale3d(1, 1, 1); }
-}
-.animate-rubber { animation: rubber 0.9s ease-in-out; }
-
-@keyframes swirlin {
-  0% { transform: rotate(-540deg) scale(0); opacity: 0; }
-  100% { transform: rotate(0) scale(1); opacity: 1; }
-}
-.animate-swirlin { animation: swirlin 1s ease-in; }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-.animate-float { animation: float 2s ease-in-out infinite; }
-
-@keyframes flicker {
-  0%, 100% { opacity: 1; }
-  40% { opacity: 0.3; }
-  60% { opacity: 0.9; }
-}
-.animate-flicker { animation: flicker 1.2s infinite; }
-
-@keyframes drip {
-  0% { transform: translateY(-30px); opacity: 0; }
-  50% { transform: translateY(10px); }
-  100% { transform: translateY(0); opacity: 1; }
-}
-.animate-drip { animation: drip 0.7s ease-out; }
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-.animate-blink { animation: blink 0.5s step-end infinite; }
-
-@keyframes vibrate {
-  0% { transform: translateX(0); }
-  20% { transform: translateX(-2px); }
-  40% { transform: translateX(2px); }
-  60% { transform: translateX(-2px); }
-  80% { transform: translateX(2px); }
-  100% { transform: translateX(0); }
-}
-.animate-vibrate { animation: vibrate 0.3s linear infinite; }
-
-@keyframes glitch {
-  0% { transform: translate(0); opacity: 1; }
-  20% { transform: translate(-3px, 2px); }
-  40% { transform: translate(3px, -2px); opacity: 0.8; }
-  60% { transform: translate(-1px, 1px); }
-  80% { transform: translate(1px, -1px); }
-  100% { transform: translate(0); opacity: 1; }
-}
-.animate-glitch { animation: glitch 0.4s steps(2, end) infinite; }
-
-  `;
-    document.head.appendChild(style);
-
-
-    // ========================
-    // THEMES (20 options)
-    // ========================
+(() => {
     const themes = {
         classic: {
             base: "flex items-center gap-3 bg-white text-black border p-4 rounded shadow relative",
@@ -346,7 +166,7 @@
             info: "border-blue-500 text-blue-300",
             icon: { success: "🌙", error: "💤", warning: "⭐", info: "✨" }
         },
-        ocean: {
+        ocean1: {
             base: "flex items-center gap-3 bg-gradient-to-r from-blue-200 via-cyan-200 to-blue-100 text-blue-900 p-4 rounded shadow",
             success: "border border-green-300",
             error: "border border-red-300",
@@ -362,7 +182,7 @@
             info: "border-blue-500 text-blue-700",
             icon: { success: "🟩", error: "🟥", warning: "🟨", info: "🟦" }
         },
-        monochrome: {
+        monochrome1: {
             base: "flex items-center gap-3 bg-gray-100 text-gray-800 p-4 rounded shadow border",
             success: "border-gray-400",
             error: "border-gray-500",
@@ -370,7 +190,7 @@
             info: "border-gray-300",
             icon: { success: "✅", error: "❌", warning: "⚠️", info: "ℹ️" }
         },
-        nature: {
+        nature1: {
             base: "flex items-center gap-3 bg-green-50 border border-green-300 text-green-800 p-4 rounded shadow",
             success: "border-green-600",
             error: "border-red-600 text-red-800",
@@ -394,7 +214,7 @@
             info: "border-l-4 border-blue-400",
             icon: { success: "📄", error: "📕", warning: "📒", info: "📘" }
         },
-        galaxy: {
+        galaxy1: {
             base: "flex items-center gap-3 bg-gradient-to-br from-indigo-800 to-purple-900 text-white p-4 rounded shadow border border-indigo-400",
             success: "text-green-300 border-green-500",
             error: "text-red-300 border-red-500",
@@ -823,7 +643,7 @@
                 warning: "<i class='fas fa-satellite-dish'></i>",
                 info: "<i class='fas fa-globe'></i>"
             }
-        }, vintage: {
+        }, vintage2: {
             base: "flex items-center gap-3 p-4 rounded shadow bg-yellow-100 text-brown-700 font-serif border border-yellow-500",
             success: "border-green-600 text-green-800",
             error: "border-red-600 text-red-800",
@@ -1085,50 +905,6 @@
         }
     };
 
-    // ========================
-    // ANIMATIONS (18 options)
-    // ========================
-    const animations = {
-        slide: ["translate-x-full opacity-0", "translate-x-0 opacity-100"],
-        fade: ["opacity-0", "opacity-100"],
-        zoom: ["scale-50 opacity-0", "scale-100 opacity-100"],
-        bounce: ["-translate-y-8 opacity-0", "translate-y-0 opacity-100"],
-        flip: ["rotate-x-180 opacity-0", "rotate-x-0 opacity-100"],
-        "flip-x": ["rotate-x-90 opacity-0", "rotate-x-0 opacity-100"],
-        "flip-y": ["rotate-y-90 opacity-0", "rotate-y-0 opacity-100"],
-        "slide-up": ["translate-y-full opacity-0", "translate-y-0 opacity-100"],
-        "slide-down": ["-translate-y-full opacity-0", "translate-y-0 opacity-100"],
-        "zoom-in": ["scale-0 opacity-0", "scale-100 opacity-100"],
-        "zoom-out": ["scale-150 opacity-0", "scale-100 opacity-100"],
-        pop: ["opacity-0 scale-75", "opacity-100 scale-100"],
-        "bounce-up": ["translate-y-10 opacity-0", "translate-y-0 opacity-100"],
-        stretch: ["scale-y-0", "scale-y-100 opacity-100"],
-        drop: ["translate-y-[-30px] opacity-0", "translate-y-0 opacity-100"],
-
-        roll: ["animate-roll", ""],
-        jiggle: ["animate-jiggle", ""],
-        swing: ["animate-swing", ""],
-        pulse: ["animate-pulse", ""],
-        flash: ["animate-flash", ""],
-        wobble: ["animate-wobble", ""],
-        tada: ["animate-tada", ""],
-        shake: ["animate-shake", ""],
-        swirl: ["animate-swirl", ""],
-        explode: ["animate-explode", ""],
-        rubber: ["animate-rubber", ""],
-        swirlin: ["animate-swirlin", ""],
-        float: ["animate-float", ""],
-        flicker: ["animate-flicker", ""],
-        drip: ["animate-drip", ""],
-        blink: ["animate-blink", ""],
-        vibrate: ["animate-vibrate", ""],
-        glitch: ["animate-glitch", ""],
-    };
-
-
-    // ========================
-    // POSITIONS (18 options)
-    // ========================
     const positions = {
         // Original Positions
         "top-right": "top-5 right-5",
@@ -1198,10 +974,6 @@
 
     };
 
-
-    // ========================
-    // PROGRESS BARS (18 options)
-    // ========================
     const progressBars = {
         "default": "h-1 bg-black/20 rounded-b",
         "neon": "h-1 bg-green-400 animate-pulse",
@@ -1264,94 +1036,333 @@
         "none": "hidden"
     };
 
-    // ========================
-    // CORE FUNCTION
-    // ========================
+    // Updated animations object with proper CSS class pairs
+    const animations = {
+        slide: ["translate-x-full opacity-0", "translate-x-0 opacity-100"],
+        fade: ["opacity-0", "opacity-100"],
+        zoom: ["scale-50 opacity-0", "scale-100 opacity-100"],
+        bounce: ["-translate-y-8 opacity-0", "translate-y-0 opacity-100"],
+        flip: ["rotate-x-180 opacity-0", "rotate-x-0 opacity-100"],
+        "flip-x": ["rotate-x-90 opacity-0", "rotate-x-0 opacity-100"],
+        "flip-y": ["rotate-y-90 opacity-0", "rotate-y-0 opacity-100"],
+        "slide-up": ["translate-y-full opacity-0", "translate-y-0 opacity-100"],
+        "slide-down": ["-translate-y-full opacity-0", "translate-y-0 opacity-100"],
+        "zoom-in": ["scale-0 opacity-0", "scale-100 opacity-100"],
+        "zoom-out": ["scale-150 opacity-0", "scale-100 opacity-100"],
+        pop: ["opacity-0 scale-75", "opacity-100 scale-100"],
+        "bounce-up": ["translate-y-10 opacity-0", "translate-y-0 opacity-100"],
+        stretch: ["scale-y-0", "scale-y-100 opacity-100"],
+        drop: ["translate-y-[-30px] opacity-0", "translate-y-0 opacity-100"],
+
+        roll: ["animate-roll", ""],
+        jiggle: ["animate-jiggle", ""],
+        swing: ["animate-swing", ""],
+        pulse: ["animate-pulse", ""],
+        flash: ["animate-flash", ""],
+        wobble: ["animate-wobble", ""],
+        tada: ["animate-tada", ""],
+        shake: ["animate-shake", ""],
+        swirl: ["animate-swirl", ""],
+        explode: ["animate-explode", ""],
+        rubber: ["animate-rubber", ""],
+        swirlin: ["animate-swirlin", ""],
+        float: ["animate-float", ""],
+        flicker: ["animate-flicker", ""],
+        drip: ["animate-drip", ""],
+        blink: ["animate-blink", ""],
+        vibrate: ["animate-vibrate", ""],
+        glitch: ["animate-glitch", ""],
+    };
+
+    // Add this CSS dynamically
+    const addAnimationStyles = () => {
+        const style = document.createElement('style');
+        style.textContent = `
+      /* Toast Container Styles */
+        [id^="toast-container-"] {
+        position: fixed;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 320px;
+        pointer-events: none;
+        }
+
+        /* Base Toast Styles */
+        .toast {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transform-origin: center;
+        will-change: transform, opacity;
+        transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        pointer-events: auto;
+        background: white;
+        color: #333;
+        }
+
+        /* Toast Exit Animation */
+        .toast-exit {
+        opacity: 0 !important;
+        transform: scale(0.9) translateY(-10px) !important;
+        transition: all 0.2s ease-in !important;
+        animation: none !important;
+        }
+
+        /* Progress Bar Styles */
+        .toast-progress-animate {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 100%;
+        transform-origin: left;
+        background: rgba(0, 0, 0, 0.1);
+        }
+
+        .toast:hover .toast-progress-animate {
+        animation-play-state: paused;
+        }
+
+        @keyframes shrink {
+        from { transform: scaleX(1); }
+        to { transform: scaleX(0); }
+        }
+
+        /* Close Button */
+        .toast-close-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+        }
+
+        .toast-close-btn:hover {
+        opacity: 1;
+        }
+
+        /* Animation Keyframes */
+        @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+        from { transform: scale(0.5); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+        0% { transform: translateY(-40px); opacity: 0; }
+        50% { transform: translateY(10px); }
+        100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes flipIn {
+        from { transform: perspective(400px) rotateX(90deg); opacity: 0; }
+        to { transform: perspective(400px) rotateX(0); opacity: 1; }
+        }
+
+        @keyframes rollIn {
+        from { transform: translateX(-100%) rotate(-540deg); opacity: 0; }
+        to { transform: translateX(0) rotate(0); opacity: 1; }
+        }
+
+        @keyframes jiggle {
+        0%, 100% { transform: rotate(0); }
+        25% { transform: rotate(3deg); }
+        75% { transform: rotate(-3deg); }
+        }
+
+        @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        }
+
+        @keyframes wobble {
+        0% { transform: translateX(0); }
+        15% { transform: translateX(-10%) rotate(-5deg); }
+        30% { transform: translateX(7%) rotate(3deg); }
+        45% { transform: translateX(-5%) rotate(-3deg); }
+        60% { transform: translateX(3%) rotate(2deg); }
+        75% { transform: translateX(-2%) rotate(-1deg); }
+        100% { transform: translateX(0); }
+        }
+
+        @keyframes tada {
+        0% { transform: scale(1); }
+        10%, 20% { transform: scale(0.9) rotate(-3deg); }
+        30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+        40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+        100% { transform: scale(1) rotate(0); }
+        }
+
+        @keyframes swirl {
+        from { transform: rotate(-540deg) scale(0); opacity: 0; }
+        to { transform: rotate(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes rubber {
+        0% { transform: scaleX(1); }
+        30% { transform: scaleX(1.25) scaleY(0.75); }
+        40% { transform: scaleX(0.75) scaleY(1.25); }
+        50% { transform: scaleX(1.15) scaleY(0.85); }
+        65% { transform: scaleX(0.95) scaleY(1.05); }
+        75% { transform: scaleX(1.05) scaleY(0.95); }
+        100% { transform: scaleX(1) scaleY(1); }
+        }
+
+        /* Animation Classes */
+        .animate-slide { animation: slideIn 0.5s cubic-bezier(0.22, 0.61, 0.36, 1); }
+        .animate-fade { animation: fadeIn 0.4s ease-out; }
+        .animate-zoom { animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .animate-bounce { animation: bounceIn 0.6s cubic-bezier(0.215, 0.61, 0.355, 1); }
+        .animate-flip { animation: flipIn 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955); }
+        .animate-roll { animation: rollIn 0.7s cubic-bezier(0.23, 1, 0.32, 1); }
+        .animate-jiggle { animation: jiggle 0.6s ease-in-out 2; }
+        .animate-pulse { animation: pulse 1.5s ease-in-out infinite; }
+        .animate-wobble { animation: wobble 0.8s ease-in-out; }
+        .animate-tada { animation: tada 1s ease-in-out; }
+        .animate-swirl { animation: swirl 0.8s ease-out; }
+        .animate-rubber { animation: rubber 0.9s ease-in-out; }
+
+        /* Theme Variants */
+        .toast-success {
+        border-left: 4px solid #10B981;
+        background-color: #ECFDF5;
+        color: #065F46;
+        }
+
+        .toast-error {
+        border-left: 4px solid #EF4444;
+        background-color: #FEE2E2;
+        color: #991B1B;
+        }
+
+        .toast-warning {
+        border-left: 4px solid #F59E0B;
+        background-color: #FEF3C7;
+        color: #92400E;
+        }
+
+        .toast-info {
+        border-left: 4px solid #3B82F6;
+        background-color: #EFF6FF;
+        color: #1E40AF;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 640px) {
+        [id^="toast-container-"] {
+            max-width: 90%;
+            left: 5% !important;
+            right: auto !important;
+            transform: none !important;
+        }
+        }
+    `;
+        document.head.appendChild(style);
+    };
+
+    const createToast = (messageObj, options) => {
+        const { message, tags = ["info"] } = messageObj;
+        const type = tags[0] || "info";
+        const theme = themes[options.theme] || themes.classic;
+        const base = theme.base || "";
+        const variant = theme[type] || "";
+        const icon = theme.icon?.[type] || "";
+
+        const toast = document.createElement("div");
+        // Apply initial animation state
+        toast.className = `toast ${base} ${variant} overflow-hidden relative ${animations[options.animation][0]}`;
+
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "toast-message flex items-center gap-2";
+        msgDiv.innerHTML = icon
+            ? `<span class="text-xl">${icon}</span><span>${message}</span>`
+            : `<span>${message}</span>`;
+        toast.appendChild(msgDiv);
+
+        if (options.showClose) {
+            const closeBtn = document.createElement("button");
+            closeBtn.innerHTML = "&times;";
+            closeBtn.className = "absolute top-1 right-2 text-xl text-gray-700 hover:text-black";
+            closeBtn.onclick = () => {
+                toast.classList.add("toast-exit");
+                setTimeout(() => toast.remove(), 200);
+            };
+            toast.appendChild(closeBtn);
+        }
+
+        if (options.showProgress) {
+            const progress = document.createElement("div");
+            progress.className = `toast-progress-animate ${progressBars[options.progressStyle] || progressBars.default}`;
+            toast.appendChild(progress);
+            setTimeout(() => {
+                progress.style.animation = `shrink linear ${options.duration}ms forwards`;
+            }, 10);
+        }
+
+        // Animate in after a short delay
+        setTimeout(() => {
+            toast.classList.remove(animations[options.animation][0]);
+            toast.classList.add(animations[options.animation][1]);
+        }, 10);
+
+        // Auto-dismiss after duration
+        setTimeout(() => {
+            toast.classList.add("toast-exit");
+            setTimeout(() => toast.remove(), 200);
+        }, options.duration);
+
+        return toast;
+    };
+
     window.initSuperToasts = function (messages, userOptions = {}) {
-        // Validation
-        if (!Array.isArray(messages)) {
-            console.error('Messages parameter must be an array');
-            return;
+        if (!Array.isArray(messages)) return console.error("Messages must be an array");
+        if (!messages.length) return console.warn("No messages provided");
+
+        // Add animation styles if not already present
+        if (!document.getElementById('toast-animation-styles')) {
+            addAnimationStyles();
         }
 
-        if (!messages.length) {
-            console.warn('No messages provided to display');
-            return;
-        }
-
-        // Default options
         const defaultOptions = {
             theme: "classic",
-
             animation: "slide",
             position: "top-right",
             duration: 4000,
             showProgress: true,
             progressStyle: "glassline",
             showClose: true,
-            queueMode: "stack",
-            darkMode: false,
-            onClick: null
+            queueMode: "stack"
         };
 
         const options = { ...defaultOptions, ...userOptions };
+        if (!themes[options.theme]) options.theme = "classic";
 
-        // Validate options
-        if (!themes[options.theme]) {
-            console.warn(`Theme "${options.theme}" not found, using default`);
-            options.theme = "classic";
-        }
-
-        // Create and manage toasts
-        const createToast = (message) => {
-            const toast = document.createElement('div');
-            toast.className = `toast ${options.theme} animate-${options.animation}`;
-
-            // Add close button if enabled
-            if (options.showClose) {
-                const closeBtn = document.createElement('button');
-                const closeHandler = () => {
-                    toast.classList.add("toast-exit");
-                    setTimeout(() => {
-                        toast.remove();
-                        closeBtn.removeEventListener("click", closeHandler);
-                        cleanup();
-                    }, 400);
-                };
-                closeBtn.addEventListener("click", closeHandler);
-                toast.appendChild(closeBtn);
-            }
-
-            // Auto-remove after duration
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.classList.add("toast-exit");
-                    setTimeout(() => {
-                        toast.remove();
-                        cleanup();
-                    }, 400);
-                }
-            }, options.duration);
-
-            return toast;
-        };
-
-        // Cleanup function
-        const cleanup = () => {
-            const containers = document.querySelectorAll('[id^="toast-container-"]');
-            containers.forEach(container => {
-                if (!container.hasChildNodes()) {
-                    container.remove();
-                }
-            });
-        };
-
-        // Process messages
-        messages.forEach(message => {
-            const toast = createToast(message);
-            // Add to container based on position
+        messages.forEach(messageObj => {
+            const toast = createToast(messageObj, options);
             const cid = "toast-container-" + options.position.replace(/[^a-z]/gi, "");
             let container = document.getElementById(cid);
+
             if (!container) {
                 container = document.createElement("div");
                 container.id = cid;
@@ -1362,34 +1373,15 @@
             }
 
             container.appendChild(toast);
-
-            // Animate in
-            setTimeout(() => {
-                toast.className = toast.className.replace("animate-" + options.animation, "");
-                const pb = toast.querySelector(".toast-progress-animate");
-                if (pb) {
-                    pb.style.animation = `shrink linear ${options.duration}ms forwards`;
-                    pb.style.transformOrigin = 'left';
-                }
-            }, 20);
-
-            // Auto-remove after duration
-            setTimeout(() => {
-                toast.classList.add("toast-exit");
-                setTimeout(() => toast.remove(), 400);
-            }, options.duration);
         });
     };
 
-    // ========================
-    // HELPER FUNCTIONS
-    // ========================
-    window.clearAllToasts = function () {
-        document.querySelectorAll('[id^="toast-container-"]').forEach(el => el.remove());
-    };
-
+    // Public API
     window.showToast = function (message, type = "info", options = {}) {
         initSuperToasts([{ message, tags: [type] }], options);
     };
 
+    window.clearAllToasts = function () {
+        document.querySelectorAll('[id^="toast-container-"]').forEach(el => el.remove());
+    };
 })();
