@@ -35,7 +35,6 @@
 
   <!-- ToastBox CDN -->
   <script src="toastbox.js"></script>
-<!--   <script src="js/app.js"></script> -->
   <!-- <script src="https://cdn.jsdelivr.net/gh/tryarctix/toastbox@main/toastbox.js"></script> -->
   
   <style>
@@ -53,15 +52,6 @@
     }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
       background: #a8a8a8;
-    }
-    .theme-preview {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      display: inline-block;
-      margin-right: 8px;
-      vertical-align: middle;
-      border: 1px solid #e5e7eb;
     }
     .tab-button {
       transition: all 0.2s ease;
@@ -134,6 +124,9 @@
           <button onclick="importConfig()" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg flex items-center text-sm">
             <i class="fas fa-file-import mr-1"></i> Import
           </button>
+          <button onclick="copyConfig()" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg flex items-center text-sm">
+            <i class="fas fa-copy mr-1"></i> Copy Config
+          </button>
         </div>
       </div>
     </div>
@@ -191,22 +184,6 @@
               <button onclick="setToastType('info')" class="toast-type-btn bg-blue-100 text-blue-800 border-blue-200" data-type="info">
                 <i class="fas fa-info-circle mr-1"></i> Info
               </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Preview Area -->
-        <div class="mt-6">
-          <label class="block mb-2 font-semibold text-gray-700">
-            <i class="fas fa-eye mr-2 text-primary-600"></i>Live Preview
-          </label>
-          <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 bg-gray-50 flex items-center justify-center min-h-32">
-            <div id="toastPreview" class="max-w-xs w-full opacity-0 transition-opacity duration-300">
-              <!-- Preview will be inserted here -->
-            </div>
-            <div id="emptyPreview" class="text-gray-400 text-center">
-              <i class="fas fa-toast text-3xl mb-2"></i>
-              <p>Configure your toast and see a live preview here</p>
             </div>
           </div>
         </div>
@@ -732,16 +709,6 @@
       document.getElementById('showSound').addEventListener('change', function() {
         document.getElementById('customShowSoundContainer').classList.toggle('hidden', this.value !== 'custom');
       });
-      
-      // Update preview when settings change
-      const previewInputs = ['toastMessage', 'themeSelect', 'animationSelect', 'positionSelect', 
-                           'progressSelect', 'showClose', 'showProgress', 'iconSelect', 'customIconColor'];
-      previewInputs.forEach(id => {
-        document.getElementById(id).addEventListener('change', updatePreview);
-      });
-      
-      // Initialize with a preview
-      setTimeout(updatePreview, 500);
     });
     
     // Tab switching
@@ -764,7 +731,6 @@
         btn.classList.remove('ring-2', 'ring-primary-500', 'ring-offset-2');
       });
       document.querySelector(`.toast-type-btn[data-type="${type}"]`).classList.add('ring-2', 'ring-primary-500', 'ring-offset-2');
-      updatePreview();
     }
     
     // Randomize message
@@ -783,123 +749,106 @@
       ];
       const randomMessage = messages[Math.floor(Math.random() * messages.length)];
       document.getElementById('toastMessage').value = randomMessage;
-      updatePreview();
     }
     
-    // Update live preview
-    function updatePreview() {
-      const message = document.getElementById("toastMessage").value;
-      const theme = document.getElementById("themeSelect").value;
-      const animation = document.getElementById("animationSelect").value;
-      const position = document.getElementById("positionSelect").value;
-      const progressStyle = document.getElementById("progressSelect").value;
-      const showClose = document.getElementById("showClose").checked;
-      const showProgress = document.getElementById("showProgress").checked;
-      const icon = document.getElementById("iconSelect").value;
-      const iconColor = document.getElementById("customIconColor").value;
+    // Copy configuration to clipboard
+    function copyConfig() {
+      const config = getCurrentConfig();
+      const configString = JSON.stringify(config, null, 2);
       
-      // Generate preview HTML
-      const previewHTML = `
-        <div class="toastbox toastbox-${theme} toastbox-${currentToastType} toastbox-${position}" 
-             style="animation: toastbox-${animation}-in 0.5s forwards;">
-          <div class="toastbox-content">
-            ${icon ? `<i class="${icon} mr-2" style="color: ${iconColor}"></i>` : ''}
-            <span>${message || 'Preview message'}</span>
-            ${showClose ? '<button class="toastbox-close">&times;</button>' : ''}
-          </div>
-          ${showProgress ? `<div class="toastbox-progress toastbox-progress-${progressStyle}"></div>` : ''}
-        </div>
-      `;
-      
-      document.getElementById('toastPreview').innerHTML = previewHTML;
-      document.getElementById('toastPreview').classList.remove('opacity-0');
-      document.getElementById('emptyPreview').classList.add('hidden');
-      
-      // Trigger animation
-      setTimeout(() => {
-        document.getElementById('toastPreview').style.animation = 'none';
-        setTimeout(() => {
-          document.getElementById('toastPreview').style.animation = `toastbox-${animation}-in 0.5s forwards`;
-        }, 10);
-      }, 10);
+      navigator.clipboard.writeText(configString).then(() => {
+        showToast('Configuration copied to clipboard!', 'success', { duration: 2000 });
+      }).catch(err => {
+        showToast('Failed to copy configuration', 'error', { duration: 2000 });
+        console.error('Failed to copy: ', err);
+      });
+    }
+    
+    // Get current configuration
+    function getCurrentConfig() {
+      return {
+        message: document.getElementById("toastMessage").value,
+        type: currentToastType,
+        theme: document.getElementById("themeSelect").value,
+        animation: document.getElementById("animationSelect").value,
+        position: document.getElementById("positionSelect").value,
+        progressStyle: document.getElementById("progressSelect").value,
+        showClose: document.getElementById("showClose").checked,
+        showProgress: document.getElementById("showProgress").checked,
+        duration: parseInt(document.getElementById("duration").value),
+        queueMode: document.getElementById("queueMode").value,
+        maxToasts: parseInt(document.getElementById("maxToasts").value),
+        pauseBehavior: document.getElementById("pauseBehavior").value,
+        rtlSupport: document.getElementById("rtlSupport").checked,
+        draggable: document.getElementById("draggable").checked,
+        closeOnClick: document.getElementById("closeOnClick").checked,
+        pauseOnWindowBlur: document.getElementById("pauseOnWindowBlur").checked,
+        showIcon: document.getElementById("showIcon").checked,
+        newestOnTop: document.getElementById("newestOnTop").checked,
+        customColors: {
+          bg: document.getElementById("customBgColor").value,
+          text: document.getElementById("customTextColor").value,
+          progress: document.getElementById("customProgressColor").value,
+          border: document.getElementById("customBorderColor").value
+        },
+        icon: document.getElementById("iconSelect").value,
+        iconColor: document.getElementById("customIconColor").value,
+        customCSS: document.getElementById("customCSS").value,
+        customHTML: document.getElementById("customHTML").value,
+        callbacks: {
+          onShow: document.getElementById("onShowCallback").value,
+          onHide: document.getElementById("onHideCallback").value,
+          onClick: document.getElementById("onClickCallback").value
+        },
+        action: {
+          text: document.getElementById("actionText").value,
+          url: document.getElementById("actionUrl").value
+        },
+        sound: {
+          show: document.getElementById("showSound").value,
+          customShow: document.getElementById("customShowSound").value
+        }
+      };
     }
     
     // Trigger toast with current settings
     function triggerToast(type) {
-      const message = document.getElementById("toastMessage").value;
-      const theme = document.getElementById("themeSelect").value;
-      const animation = document.getElementById("animationSelect").value;
-      const position = document.getElementById("positionSelect").value;
-      const progressStyle = document.getElementById("progressSelect").value;
-      const showClose = document.getElementById("showClose").checked;
-      const showProgress = document.getElementById("showProgress").checked;
-      const duration = parseInt(document.getElementById("duration").value);
-      const queueMode = document.getElementById("queueMode").value;
-      const maxToasts = parseInt(document.getElementById("maxToasts").value);
-      const pauseBehavior = document.getElementById("pauseBehavior").value;
-      const rtlSupport = document.getElementById("rtlSupport").checked;
-      const draggable = document.getElementById("draggable").checked;
-      const closeOnClick = document.getElementById("closeOnClick").checked;
-      const pauseOnWindowBlur = document.getElementById("pauseOnWindowBlur").checked;
-      const showIcon = document.getElementById("showIcon").checked;
-      const newestOnTop = document.getElementById("newestOnTop").checked;
-      const customBgColor = document.getElementById("customBgColor").value;
-      const customTextColor = document.getElementById("customTextColor").value;
-      const customProgressColor = document.getElementById("customProgressColor").value;
-      const customBorderColor = document.getElementById("customBorderColor").value;
-      const icon = document.getElementById("iconSelect").value;
-      const iconColor = document.getElementById("customIconColor").value;
-      const customCSS = document.getElementById("customCSS").value;
-      const customHTML = document.getElementById("customHTML").value;
-      const onShowCallback = document.getElementById("onShowCallback").value;
-      const onHideCallback = document.getElementById("onHideCallback").value;
-      const onClickCallback = document.getElementById("onClickCallback").value;
-      const actionText = document.getElementById("actionText").value;
-      const actionUrl = document.getElementById("actionUrl").value;
-      const showSound = document.getElementById("showSound").value;
-      const customShowSound = document.getElementById("customShowSound").value;
+      const config = getCurrentConfig();
       
-      const options = {
-        theme,
-        animation,
-        position,
-        progressStyle,
-        showProgress,
-        showClose,
-        duration,
-        queueMode,
-        maxToasts,
-        pauseBehavior,
-        rtlSupport,
-        draggable,
-        closeOnClick,
-        pauseOnWindowBlur,
-        showIcon,
-        newestOnTop,
-        customColors: {
-          bg: customBgColor,
-          text: customTextColor,
-          progress: customProgressColor,
-          border: customBorderColor
-        },
-        icon: icon || undefined,
-        iconColor: iconColor || undefined,
-        customCSS: customCSS || undefined,
-        customHTML: customHTML || undefined,
-        onShow: onShowCallback ? new Function('toast', onShowCallback) : undefined,
-        onHide: onHideCallback ? new Function('toast', onHideCallback) : undefined,
-        onClick: onClickCallback ? new Function('toast', onClickCallback) : undefined,
-        action: actionText ? {
-          text: actionText,
-          url: actionUrl || undefined,
-          onClick: actionUrl ? undefined : (() => console.log('Action clicked'))
+      showToast(config.message || `Default ${type} message`, type, {
+        theme: config.theme,
+        animation: config.animation,
+        position: config.position,
+        progressStyle: config.progressStyle,
+        showProgress: config.showProgress,
+        showClose: config.showClose,
+        duration: config.duration,
+        queueMode: config.queueMode,
+        maxToasts: config.maxToasts,
+        pauseBehavior: config.pauseBehavior,
+        rtlSupport: config.rtlSupport,
+        draggable: config.draggable,
+        closeOnClick: config.closeOnClick,
+        pauseOnWindowBlur: config.pauseOnWindowBlur,
+        showIcon: config.showIcon,
+        newestOnTop: config.newestOnTop,
+        customColors: config.customColors,
+        icon: config.icon || undefined,
+        iconColor: config.iconColor || undefined,
+        customCSS: config.customCSS || undefined,
+        customHTML: config.customHTML || undefined,
+        onShow: config.callbacks.onShow ? new Function('toast', config.callbacks.onShow) : undefined,
+        onHide: config.callbacks.onHide ? new Function('toast', config.callbacks.onHide) : undefined,
+        onClick: config.callbacks.onClick ? new Function('toast', config.callbacks.onClick) : undefined,
+        action: config.action.text ? {
+          text: config.action.text,
+          url: config.action.url || undefined,
+          onClick: config.action.url ? undefined : (() => console.log('Action clicked'))
         } : undefined,
-        sound: showSound ? {
-          show: showSound === 'custom' ? customShowSound : showSound
+        sound: config.sound.show ? {
+          show: config.sound.show === 'custom' ? config.sound.customShow : config.sound.show
         } : undefined
-      };
-      
-      showToast(message || `Default ${type} message`, type, options);
+      });
     }
     
     // Show multiple toasts
@@ -961,49 +910,7 @@
     
     // Export configuration
     function exportConfig() {
-      const config = {
-        message: document.getElementById("toastMessage").value,
-        type: currentToastType,
-        theme: document.getElementById("themeSelect").value,
-        animation: document.getElementById("animationSelect").value,
-        position: document.getElementById("positionSelect").value,
-        progressStyle: document.getElementById("progressSelect").value,
-        showClose: document.getElementById("showClose").checked,
-        showProgress: document.getElementById("showProgress").checked,
-        duration: parseInt(document.getElementById("duration").value),
-        queueMode: document.getElementById("queueMode").value,
-        maxToasts: parseInt(document.getElementById("maxToasts").value),
-        pauseBehavior: document.getElementById("pauseBehavior").value,
-        rtlSupport: document.getElementById("rtlSupport").checked,
-        draggable: document.getElementById("draggable").checked,
-        closeOnClick: document.getElementById("closeOnClick").checked,
-        pauseOnWindowBlur: document.getElementById("pauseOnWindowBlur").checked,
-        showIcon: document.getElementById("showIcon").checked,
-        newestOnTop: document.getElementById("newestOnTop").checked,
-        customColors: {
-          bg: document.getElementById("customBgColor").value,
-          text: document.getElementById("customTextColor").value,
-          progress: document.getElementById("customProgressColor").value,
-          border: document.getElementById("customBorderColor").value
-        },
-        icon: document.getElementById("iconSelect").value,
-        iconColor: document.getElementById("customIconColor").value,
-        customCSS: document.getElementById("customCSS").value,
-        customHTML: document.getElementById("customHTML").value,
-        callbacks: {
-          onShow: document.getElementById("onShowCallback").value,
-          onHide: document.getElementById("onHideCallback").value,
-          onClick: document.getElementById("onClickCallback").value
-        },
-        action: {
-          text: document.getElementById("actionText").value,
-          url: document.getElementById("actionUrl").value
-        },
-        sound: {
-          show: document.getElementById("showSound").value,
-          customShow: document.getElementById("customShowSound").value
-        }
-      };
+      const config = getCurrentConfig();
       
       const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -1086,7 +993,6 @@
             document.getElementById('customShowSoundContainer').classList.toggle('hidden', 
               document.getElementById("showSound").value !== 'custom');
             
-            updatePreview();
             showToast('Configuration imported!', 'success', { duration: 2000 });
           } catch (error) {
             showToast('Failed to import configuration', 'error', { duration: 2000 });
