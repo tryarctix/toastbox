@@ -1,713 +1,1103 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-gray-100 text-gray-800">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ToastBox Advanced Playground</title>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css" rel="stylesheet">
-<!--   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- ToastBox CDN -->
   <script src="toastbox.js"></script>
-<!--   <script src="toastbox.min.js"></script> -->
+<!--   <script src="js/app.js"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/gh/tryarctix/toastbox@main/toastbox.js"></script> -->
+  
   <style>
-    /* Custom styles */
-    .theme-card {
-      transition: all 0.2s ease;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-    .theme-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    .toast-type-btn {
-      transition: all 0.2s ease;
-    }
-    .toast-type-btn.active {
-      transform: scale(1.05);
-      box-shadow: 0 0 0 2px currentColor;
-    }
-    .animate-pulse-slow {
-      animation: pulse 3s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
     .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
+      width: 8px;
+      height: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #94a3b8;
-      border-radius: 3px;
+      background: #c1c1c1;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+    .theme-preview {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+      border: 1px solid #e5e7eb;
+    }
+    .tab-button {
+      transition: all 0.2s ease;
+    }
+    .tab-button.active {
+      background-color: #0ea5e9;
+      color: white;
+    }
+    .tab-button:hover:not(.active) {
+      background-color: #e0f2fe;
+    }
+    .color-picker {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 0;
+    }
+    .color-picker::-webkit-color-swatch {
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+    }
+    .color-picker::-moz-color-swatch {
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+    }
+    .range-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #d1d5db;
+      outline: none;
+    }
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #0ea5e9;
+      cursor: pointer;
+    }
+    .range-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #0ea5e9;
+      cursor: pointer;
     }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen p-4 md:p-8 font-sans">
-  <input type="hidden" id="type" value="success">
-  <input type="hidden" id="theme" value="classic">
-  <div id="toastContainer" class="fixed z-50"></div>
-
-  <div class="max-w-7xl mx-auto">
+<body class="min-h-screen flex items-center justify-center p-4 md:p-8 bg-gradient-to-br from-gray-50 to-gray-200">
+  <div class="w-full max-w-6xl bg-white shadow-xl rounded-xl overflow-hidden flex flex-col" style="max-height: 90vh;">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-      <div>
-        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 flex items-center gap-3">
-          <span class="bg-blue-100 text-blue-800 p-2 rounded-lg">
-            <i class="fas fa-bolt"></i>
-          </span>
-          ToastBox Playground
-        </h1>
-        <p class="text-gray-600 mt-2">Interactive demo for exploring toast notifications</p>
+    <div class="bg-gradient-to-r from-primary-600 to-primary-800 p-6 text-white">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold">🔥 ToastBox Advanced Playground</h1>
+          <p class="text-primary-100 mt-1">Experiment with all ToastBox features in real-time</p>
+        </div>
+        <div class="flex space-x-2">
+          <button onclick="exportConfig()" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg flex items-center text-sm">
+            <i class="fas fa-file-export mr-1"></i> Export
+          </button>
+          <button onclick="importConfig()" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg flex items-center text-sm">
+            <i class="fas fa-file-import mr-1"></i> Import
+          </button>
+        </div>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <button onclick="showAllTypes()" class="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all flex items-center gap-2">
-          <i class="fas fa-layer-group"></i> Show All Types
-        </button>
-        <button onclick="showRandomToast()" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 transition-all flex items-center gap-2">
-          <i class="fas fa-random"></i> Random
-        </button>
-        <button onclick="clearAllToasts()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all flex items-center gap-2">
-          <i class="fas fa-trash"></i> Clear
-        </button>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="flex border-b">
+      <button class="tab-button px-4 py-2 font-medium active" onclick="switchTab('basic')">
+        <i class="fas fa-sliders-h mr-2"></i>Basic
+      </button>
+      <button class="tab-button px-4 py-2 font-medium" onclick="switchTab('appearance')">
+        <i class="fas fa-palette mr-2"></i>Appearance
+      </button>
+      <button class="tab-button px-4 py-2 font-medium" onclick="switchTab('behavior')">
+        <i class="fas fa-cog mr-2"></i>Behavior
+      </button>
+      <button class="tab-button px-4 py-2 font-medium" onclick="switchTab('advanced')">
+        <i class="fas fa-flask mr-2"></i>Advanced
+      </button>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
+      <!-- Basic Tab -->
+      <div id="basic-tab" class="tab-content space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Message Input -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-comment-alt mr-2 text-primary-600"></i>Toast Message
+            </label>
+            <div class="flex space-x-2">
+              <input type="text" id="toastMessage" class="flex-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                    placeholder="Enter your toast message" value="Hello from ToastBox!" />
+              <button onclick="randomizeMessage()" class="bg-gray-100 hover:bg-gray-200 px-3 rounded-lg">
+                <i class="fas fa-random text-gray-600"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Toast Type -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-tag mr-2 text-primary-600"></i>Toast Type
+            </label>
+            <div class="grid grid-cols-4 gap-2">
+              <button onclick="setToastType('success')" class="toast-type-btn bg-green-100 text-green-800 border-green-200" data-type="success">
+                <i class="fas fa-check-circle mr-1"></i> Success
+              </button>
+              <button onclick="setToastType('error')" class="toast-type-btn bg-red-100 text-red-800 border-red-200" data-type="error">
+                <i class="fas fa-times-circle mr-1"></i> Error
+              </button>
+              <button onclick="setToastType('warning')" class="toast-type-btn bg-yellow-100 text-yellow-800 border-yellow-200" data-type="warning">
+                <i class="fas fa-exclamation-triangle mr-1"></i> Warning
+              </button>
+              <button onclick="setToastType('info')" class="toast-type-btn bg-blue-100 text-blue-800 border-blue-200" data-type="info">
+                <i class="fas fa-info-circle mr-1"></i> Info
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview Area -->
+        <div class="mt-6">
+          <label class="block mb-2 font-semibold text-gray-700">
+            <i class="fas fa-eye mr-2 text-primary-600"></i>Live Preview
+          </label>
+          <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 bg-gray-50 flex items-center justify-center min-h-32">
+            <div id="toastPreview" class="max-w-xs w-full opacity-0 transition-opacity duration-300">
+              <!-- Preview will be inserted here -->
+            </div>
+            <div id="emptyPreview" class="text-gray-400 text-center">
+              <i class="fas fa-toast text-3xl mb-2"></i>
+              <p>Configure your toast and see a live preview here</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appearance Tab -->
+      <div id="appearance-tab" class="tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Theme Select -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-paint-brush mr-2 text-primary-600"></i>Theme
+            </label>
+            <select id="themeSelect" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <option value="classic">🎨 Classic</option>
+              <option value="flat">🟦 Flat</option>
+              <option value="glass">🔮 Glass</option>
+              <option value="neon">💡 Neon</option>
+              <option value="material">📱 Material</option>
+              <option value="bubble">🫧 Bubble</option>
+              <option value="retro">📺 Retro</option>
+              <option value="gradient">🌈 Gradient</option>
+              <option value="solid">🔳 Solid</option>
+              <option value="minimal">⬜ Minimal</option>
+              <option value="cyberpunk">🤖 Cyberpunk</option>
+              <option value="pastel">🎀 Pastel</option>
+              <option value="terminal">💻 Terminal</option>
+              <option value="aqua">🌊 Aqua</option>
+              <option value="forest">🌲 Forest</option>
+              <option value="luxury">💎 Luxury</option>
+              <option value="sports">⚽ Sports</option>
+              <option value="coffee">☕ Coffee</option>
+              <option value="sunset">🌅 Sunset</option>
+              <option value="midnight">🌌 Midnight</option>
+              <option value="ocean1">🌊 Ocean</option>
+              <option value="pixel">👾 Pixel</option>
+              <option value="monochrome1">⚫ Monochrome</option>
+              <option value="nature1">🍃 Nature</option>
+              <option value="candy">🍬 Candy</option>
+              <option value="paper">📄 Paper</option>
+              <option value="galaxy1">🌌 Galaxy</option>
+              <option value="cartoon">🖍️ Cartoon</option>
+              <option value="muted">🎧 Muted</option>
+              <option value="fiesta">🎉 Fiesta</option>
+              <option value="blush">🌸 Blush</option>
+              <option value="shadow">👤 Shadow</option>
+              <option value="lime">🍈 Lime</option>
+              <option value="comic">📚 Comic</option>
+              <option value="vintage">🕰️ Vintage</option>
+              <option value="iceberg">🧊 Iceberg</option>
+              <option value="tropical">🌴 Tropical</option>
+              <option value="arcade">🎮 Arcade</option>
+              <option value="metro">🚇 Metro</option>
+              <option value="chalkboard">✏️ Chalkboard</option>
+              <option value="fire">🔥 Fire</option>
+              <option value="arctic">❄️ Arctic</option>
+              <option value="fruity">🍎 Fruity</option>
+              <option value="elegant">🎩 Elegant</option>
+              <option value="bamboo">🎍 Bamboo</option>
+              <option value="metal">🔩 Metal</option>
+              <option value="chocolate">🍫 Chocolate</option>
+              <option value="wave">🌊 Wave</option>
+              <option value="cybergrid">🔳 Cybergrid</option>
+              <option value="vaporwave">🌐 Vaporwave</option>
+              <option value="gamer">🎮 Gamer</option>
+              <option value="ocean">🌊 Ocean</option>
+              <option value="nature">🌿 Nature</option>
+              <option value="rainbow">🌈 Rainbow</option>
+              <option value="tech">💻 Tech</option>
+              <option value="aurora">🌌 Aurora</option>
+              <option value="ink">🖋️ Ink</option>
+              <option value="holiday">🎄 Holiday</option>
+              <option value="galaxy">🌠 Galaxy</option>
+              <option value="naruto">🌀 Naruto</option>
+              <option value="onepiece">🏴‍☠️ One Piece</option>
+              <option value="demonSlayer">⚔️ Demon Slayer</option>
+              <option value="deathNote">📓 Death Note</option>
+              <option value="aot">🧱 Attack on Titan</option>
+              <option value="bleach">💀 Bleach</option>
+              <option value="mha">🦸 My Hero Academia</option>
+              <option value="jujutsu">👹 Jujutsu Kaisen</option>
+              <option value="dragonBall">🐉 Dragon Ball</option>
+              <option value="tokyoGhoul">👁️ Tokyo Ghoul</option>
+            </select>
+          </div>
+
+          <!-- Animation Select -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-film mr-2 text-primary-600"></i>Animation
+            </label>
+            <select id="animationSelect" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <option value="slide">↔️ Slide</option>
+              <option value="fade">🌫️ Fade</option>
+              <option value="zoom">🔍 Zoom</option>
+              <option value="bounce">🏀 Bounce</option>
+              <option value="flip">🔄 Flip</option>
+              <option value="flip-x">↔️ Flip X</option>
+              <option value="flip-y">↕️ Flip Y</option>
+              <option value="slide-up">⬆️ Slide Up</option>
+              <option value="slide-down">⬇️ Slide Down</option>
+              <option value="zoom-in">➕ Zoom In</option>
+              <option value="zoom-out">➖ Zoom Out</option>
+              <option value="pop">🎉 Pop</option>
+              <option value="bounce-up">🔼 Bounce Up</option>
+              <option value="stretch">🔳 Stretch</option>
+              <option value="drop">💧 Drop</option>
+              <option value="roll">🎲 Roll</option>
+              <option value="jiggle">🕺 Jiggle</option>
+              <option value="swing">🌿 Swing</option>
+              <option value="pulse">💓 Pulse</option>
+              <option value="flash">⚡ Flash</option>
+              <option value="wobble">🌀 Wobble</option>
+              <option value="tada">🎊 Tada</option>
+              <option value="shake">👋 Shake</option>
+              <option value="swirl">🌪️ Swirl</option>
+              <option value="explode">💥 Explode</option>
+              <option value="rubber">🧶 Rubber</option>
+              <option value="swirlin">🌪️ Swirl In</option>
+              <option value="float">☁️ Float</option>
+              <option value="flicker">💡 Flicker</option>
+              <option value="drip">💦 Drip</option>
+              <option value="blink">👁️ Blink</option>
+              <option value="vibrate">📳 Vibrate</option>
+              <option value="glitch">📺 Glitch</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Position Select -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-map-marker-alt mr-2 text-primary-600"></i>Position
+            </label>
+            <select id="positionSelect" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <option value="top-right">↗️ Top Right</option>
+              <option value="top-left">↖️ Top Left</option>
+              <option value="top-center">⬆️ Top Center</option>
+              <option value="center">🎯 Center</option>
+              <option value="bottom-right">↘️ Bottom Right</option>
+              <option value="bottom-left">↙️ Bottom Left</option>
+              <option value="bottom-center">⬇️ Bottom Center</option>
+              <option value="top-edge">🔝 Top Edge</option>
+              <option value="bottom-edge">🔻 Bottom Edge</option>
+              <option value="top-right-corner">🔝↗️ Top Right Corner</option>
+              <option value="top-left-corner">🔝↖️ Top Left Corner</option>
+              <option value="bottom-right-corner">🔻↘️ Bottom Right Corner</option>
+              <option value="bottom-left-corner">🔻↙️ Bottom Left Corner</option>
+              <option value="center-left">⬅️ Center Left</option>
+              <option value="center-right">➡️ Center Right</option>
+              <option value="top-left-edge">🔝⬅️ Top Left Edge</option>
+              <option value="bottom-right-edge">🔻➡️ Bottom Right Edge</option>
+              <option value="center-top">⬆️ Center Top</option>
+              <option value="center-bottom">⬇️ Center Bottom</option>
+              <option value="center-screen">🖥️ Center Screen</option>
+              <option value="floating-center">🪂 Floating Center</option>
+              <option value="mobile-top">📱 Mobile Top</option>
+              <option value="mobile-bottom">📱 Mobile Bottom</option>
+              <option value="fullscreen-center">🖥️ Fullscreen Center</option>
+              <option value="center-fixed">📌 Center Fixed</option>
+            </select>
+          </div>
+
+          <!-- Progress Style Select -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-hourglass-half mr-2 text-primary-600"></i>Progress Style
+            </label>
+            <select id="progressSelect" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <option value="default">🔵 Default</option>
+              <option value="neon">💡 Neon</option>
+              <option value="glass">🔮 Glass</option>
+              <option value="bold">🟦 Bold</option>
+              <option value="rainbow">🌈 Rainbow</option>
+              <option value="striped">🎨 Striped</option>
+              <option value="dotted">🔘 Dotted</option>
+              <option value="animated">🌀 Animated</option>
+              <option value="thick">⬛ Thick</option>
+              <option value="thin">➖ Thin</option>
+              <option value="white">⚪ White</option>
+              <option value="glassline">🥃 Glass Line</option>
+              <option value="aqua">💧 Aqua</option>
+              <option value="fire">🔥 Fire</option>
+              <option value="carbon">⚫ Carbon</option>
+              <option value="pulse-stripe">💫 Pulse Stripe</option>
+              <option value="shine">✨ Shine</option>
+              <option value="pulse">💓 Pulse</option>
+              <option value="gradient-stripe">🌈➖ Gradient Stripe</option>
+              <option value="cyberpunk">🤖 Cyberpunk</option>
+              <option value="matrix">💾 Matrix</option>
+              <option value="electric">⚡ Electric</option>
+              <option value="lava">🌋 Lava</option>
+              <option value="ice">🧊 Ice</option>
+              <option value="twilight">🌆 Twilight</option>
+              <option value="galaxy">🌌 Galaxy</option>
+              <option value="none">🚫 None</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom Colors -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-fill-drip mr-2 text-primary-600"></i>Custom Colors
+            </label>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block mb-1 text-sm text-gray-600">Background</label>
+                <input type="color" id="customBgColor" class="color-picker" value="#ffffff">
+              </div>
+              <div>
+                <label class="block mb-1 text-sm text-gray-600">Text</label>
+                <input type="color" id="customTextColor" class="color-picker" value="#000000">
+              </div>
+              <div>
+                <label class="block mb-1 text-sm text-gray-600">Progress</label>
+                <input type="color" id="customProgressColor" class="color-picker" value="#4f46e5">
+              </div>
+              <div>
+                <label class="block mb-1 text-sm text-gray-600">Border</label>
+                <input type="color" id="customBorderColor" class="color-picker" value="#e5e7eb">
+              </div>
+            </div>
+          </div>
+
+          <!-- Custom Icon -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-icons mr-2 text-primary-600"></i>Custom Icon
+            </label>
+            <div class="flex items-center space-x-4">
+              <select id="iconSelect" class="flex-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                <option value="">Default</option>
+                <option value="fa-check-circle">✅ Check</option>
+                <option value="fa-times-circle">❌ Error</option>
+                <option value="fa-exclamation-triangle">⚠️ Warning</option>
+                <option value="fa-info-circle">ℹ️ Info</option>
+                <option value="fa-star">⭐ Star</option>
+                <option value="fa-heart">❤️ Heart</option>
+                <option value="fa-bell">🔔 Bell</option>
+                <option value="fa-rocket">🚀 Rocket</option>
+                <option value="fa-bolt">⚡ Bolt</option>
+                <option value="fa-gift">🎁 Gift</option>
+                <option value="fa-flag">🚩 Flag</option>
+                <option value="fa-fire">🔥 Fire</option>
+                <option value="fa-thumbs-up">👍 Thumbs Up</option>
+              </select>
+              <input type="color" id="customIconColor" class="color-picker" value="#4f46e5">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Behavior Tab -->
+      <div id="behavior-tab" class="tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Duration -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-clock mr-2 text-primary-600"></i>Duration: <span id="durationValue">4000</span>ms
+            </label>
+            <input type="range" id="duration" min="1000" max="10000" step="500" value="4000" 
+                   class="range-slider w-full">
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+              <span>1s</span>
+              <span>3s</span>
+              <span>5s</span>
+              <span>7s</span>
+              <span>10s</span>
+            </div>
+          </div>
+
+          <!-- Queue Mode -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-layer-group mr-2 text-primary-600"></i>Queue Mode
+            </label>
+            <select id="queueMode" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <option value="stack">📚 Stack (Multiple toasts)</option>
+              <option value="replace">🔄 Replace (Single toast)</option>
+              <option value="queue">⏳ Queue (One after another)</option>
+              <option value="priority">⚠️ Priority (Important first)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Max Toasts -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-layer-group mr-2 text-primary-600"></i>Max Visible Toasts: <span id="maxToastsValue">5</span>
+            </label>
+            <input type="range" id="maxToasts" min="1" max="10" step="1" value="5" 
+                   class="range-slider w-full">
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+              <span>1</span>
+              <span>3</span>
+              <span>5</span>
+              <span>8</span>
+              <span>10</span>
+            </div>
+          </div>
+
+          <!-- Pause on Hover -->
+          <div>
+            <label class="block mb-2 font-semibold text-gray-700">
+              <i class="fas fa-pause mr-2 text-primary-600"></i>Pause Behavior
+            </label>
+            <select id="pauseBehavior" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <option value="hover">⏸️ Pause on hover</option>
+              <option value="none">▶️ Never pause</option>
+              <option value="focus">👆 Pause on focus</option>
+              <option value="both">⏸️👆 Pause on hover & focus</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Checkbox Options -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+          <label class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <input type="checkbox" id="showClose" checked class="rounded text-primary-600 focus:ring-primary-500" />
+            <span class="text-gray-700">
+              <i class="fas fa-times mr-1 text-primary-600"></i> Show Close Button
+            </span>
+          </label>
+          <label class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <input type="checkbox" id="showProgress" checked class="rounded text-primary-600 focus:ring-primary-500" />
+            <span class="text-gray-700">
+              <i class="fas fa-hourglass-half mr-1 text-primary-600"></i> Show Progress Bar
+            </span>
+          </label>
+          <label class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <input type="checkbox" id="rtlSupport" class="rounded text-primary-600 focus:ring-primary-500" />
+            <span class="text-gray-700">
+              <i class="fas fa-text-width mr-1 text-primary-600"></i> RTL Support
+            </span>
+          </label>
+          <label class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <input type="checkbox" id="draggable" class="rounded text-primary-600 focus:ring-primary-500" />
+            <span class="text-gray-700">
+              <i class="fas fa-arrows-alt mr-1 text-primary-600"></i> Draggable Toasts
+            </span>
+          </label>
+          <label class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <input type="checkbox" id="closeOnClick" class="rounded text-primary-600 focus:ring-primary-500" />
+            <span class="text-gray-700">
+              <i class="fas fa-mouse-pointer mr-1 text-primary-600"></i> Close on Click
+            </span>
+          </label>
+          <label class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <input type="checkbox" id="pauseOnWindowBlur" checked class="rounded text-primary-600 focus:ring-primary-500" />
+            <span class="text-gray-700">
+              <i class="fas fa-window-minimize mr-1 text-primary-600"></i> Pause When Window Inactive
+            </span>
+          </label>
+          <label class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <input type="checkbox" id="showIcon" checked class="rounded text-primary-600 focus:ring-primary-500" />
+            <span class="text-gray-700">
+              <i class="fas fa-icons mr-1 text-primary-600"></i> Show Icon
+            </span>
+          </label>
+          <label class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+            <input type="checkbox" id="newestOnTop" checked class="rounded text-primary-600 focus:ring-primary-500" />
+            <span class="text-gray-700">
+              <i class="fas fa-sort-amount-up-alt mr-1 text-primary-600"></i> Newest On Top
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Advanced Tab -->
+      <div id="advanced-tab" class="tab-content hidden space-y-6">
+        <!-- Custom CSS -->
+        <div>
+          <label class="block mb-2 font-semibold text-gray-700">
+            <i class="fas fa-code mr-2 text-primary-600"></i>Custom CSS
+          </label>
+          <textarea id="customCSS" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 h-32 font-mono text-sm" 
+                    placeholder=".toastbox-custom {\n  /* Your custom styles here */\n}"></textarea>
+          <div class="flex justify-end mt-2">
+            <button onclick="applyCustomCSS()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-1 rounded-lg text-sm">
+              Apply CSS
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom HTML Content -->
+        <div>
+          <label class="block mb-2 font-semibold text-gray-700">
+            <i class="fas fa-code mr-2 text-primary-600"></i>Custom HTML Content
+          </label>
+          <textarea id="customHTML" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 h-32 font-mono text-sm" 
+                    placeholder="<div class='custom-content'>\n  <!-- Your HTML here -->\n</div>"></textarea>
+          <div class="flex justify-end mt-2">
+            <button onclick="applyCustomHTML()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-1 rounded-lg text-sm">
+              Apply HTML
+            </button>
+          </div>
+        </div>
+
+        <!-- Callbacks -->
+        <div>
+          <label class="block mb-2 font-semibold text-gray-700">
+            <i class="fas fa-exchange-alt mr-2 text-primary-600"></i>Callbacks
+          </label>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block mb-1 text-sm text-gray-600">onShow</label>
+              <input type="text" id="onShowCallback" class="w-full border rounded-lg px-3 py-1 text-sm" 
+                     placeholder="function(toast) {...}">
+            </div>
+            <div>
+              <label class="block mb-1 text-sm text-gray-600">onHide</label>
+              <input type="text" id="onHideCallback" class="w-full border rounded-lg px-3 py-1 text-sm" 
+                     placeholder="function(toast) {...}">
+            </div>
+            <div>
+              <label class="block mb-1 text-sm text-gray-600">onClick</label>
+              <input type="text" id="onClickCallback" class="w-full border rounded-lg px-3 py-1 text-sm" 
+                     placeholder="function(toast) {...}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Toast Actions -->
+        <div>
+          <label class="block mb-2 font-semibold text-gray-700">
+            <i class="fas fa-bolt mr-2 text-primary-600"></i>Toast Actions
+          </label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block mb-1 text-sm text-gray-600">Action Text</label>
+              <input type="text" id="actionText" class="w-full border rounded-lg px-3 py-1" 
+                     placeholder="e.g. 'Undo'">
+            </div>
+            <div>
+              <label class="block mb-1 text-sm text-gray-600">Action URL</label>
+              <input type="text" id="actionUrl" class="w-full border rounded-lg px-3 py-1" 
+                     placeholder="e.g. '/undo-action'">
+            </div>
+          </div>
+        </div>
+
+        <!-- Sound Effects -->
+        <div>
+          <label class="block mb-2 font-semibold text-gray-700">
+            <i class="fas fa-volume-up mr-2 text-primary-600"></i>Sound Effects
+          </label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block mb-1 text-sm text-gray-600">Show Sound</label>
+              <select id="showSound" class="w-full border rounded-lg px-3 py-1">
+                <option value="">None</option>
+                <option value="bell">🔔 Bell</option>
+                <option value="pop">🎉 Pop</option>
+                <option value="chime">🎵 Chime</option>
+                <option value="ding">🔔 Ding</option>
+                <option value="whoosh">🌬️ Whoosh</option>
+                <option value="click">🖱️ Click</option>
+                <option value="custom">🎵 Custom URL</option>
+              </select>
+            </div>
+            <div id="customShowSoundContainer" class="hidden">
+              <label class="block mb-1 text-sm text-gray-600">Custom Show Sound URL</label>
+              <input type="text" id="customShowSound" class="w-full border rounded-lg px-3 py-1" 
+                     placeholder="https://example.com/sound.mp3">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="grid lg:grid-cols-3 gap-6">
-      <!-- Left Panel -->
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-        <!-- Type Selector -->
-        <div class="mb-6">
-          <h2 class="text-lg font-semibold text-gray-800 mb-3">Message Type</h2>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <button onclick="setType('success')" class="toast-type-btn success-btn bg-green-100 text-green-800 p-3 rounded-lg flex flex-col items-center">
-              <i class="fas fa-check-circle text-xl mb-1"></i>
-              <span>Success</span>
-            </button>
-            <button onclick="setType('error')" class="toast-type-btn error-btn bg-red-100 text-red-800 p-3 rounded-lg flex flex-col items-center">
-              <i class="fas fa-times-circle text-xl mb-1"></i>
-              <span>Error</span>
-            </button>
-            <button onclick="setType('warning')" class="toast-type-btn warning-btn bg-yellow-100 text-yellow-800 p-3 rounded-lg flex flex-col items-center">
-              <i class="fas fa-exclamation-triangle text-xl mb-1"></i>
-              <span>Warning</span>
-            </button>
-            <button onclick="setType('info')" class="toast-type-btn info-btn bg-blue-100 text-blue-800 p-3 rounded-lg flex flex-col items-center">
-              <i class="fas fa-info-circle text-xl mb-1"></i>
-              <span>Info</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Message Input -->
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Message Content</label>
-          <div class="relative">
-            <textarea id="msg" rows="2" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">Operation completed successfully!</textarea>
-            <button onclick="document.getElementById('msg').value = ''" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Configuration Tabs -->
-        <div class="mb-6">
-          <div class="flex border-b">
-            <button class="tab-btn active px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600" onclick="switchTab('basic')">
-              <i class="fas fa-cog mr-2"></i>Basic
-            </button>
-            <button class="tab-btn px-4 py-2 font-medium text-gray-500 hover:text-gray-700" onclick="switchTab('advanced')">
-              <i class="fas fa-sliders-h mr-2"></i>Advanced
-            </button>
-            <button class="tab-btn px-4 py-2 font-medium text-gray-500 hover:text-gray-700" onclick="switchTab('themes')">
-              <i class="fas fa-palette mr-2"></i>Themes
-            </button>
-          </div>
-
-          <!-- Basic Tab -->
-          <div id="basicTab" class="tab-content pt-4">
-            <div class="grid md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                <select id="position" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option>top-right</option>
-                  <option>top-left</option>
-                  <option>top-center</option>
-                  <option>center</option>
-                  <option>bottom-right</option>
-                  <option>bottom-left</option>
-                  <option>bottom-center</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Animation</label>
-                <select id="anim" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option>slide</option>
-                  <option>fade</option>
-                  <option>zoom</option>
-                  <option>bounce</option>
-                  <option>flip</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Duration (ms)</label>
-                <input id="duration" type="number" value="4000" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Progress Style</label>
-                <select id="progress" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option>default</option>
-                  <option>neon</option>
-                  <option>glass</option>
-                  <option>bold</option>
-                  <option>rainbow</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-              <label class="flex items-center space-x-2">
-                <input id="progressCheck" type="checkbox" checked class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
-                <span class="text-sm text-gray-700">Progress</span>
-              </label>
-              <label class="flex items-center space-x-2">
-                <input id="closeCheck" type="checkbox" checked class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
-                <span class="text-sm text-gray-700">Close Button</span>
-              </label>
-              <label class="flex items-center space-x-2">
-                <input id="darkCheck" type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
-                <span class="text-sm text-gray-700">Dark Mode</span>
-              </label>
-              <label class="flex items-center space-x-2">
-                <input id="replaceCheck" type="checkbox" class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
-                <span class="text-sm text-gray-700">Replace Mode</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Advanced Tab -->
-          <div id="advancedTab" class="tab-content hidden pt-4">
-            <div class="grid md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Width</label>
-                <input id="width" type="text" placeholder="300px" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Max Width</label>
-                <input id="maxWidth" type="text" placeholder="80%" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Border Radius</label>
-                <input id="borderRadius" type="text" placeholder="8px" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Padding</label>
-                <input id="padding" type="text" placeholder="16px" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Custom Class</label>
-                <input id="customClass" type="text" placeholder="my-toast-class" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Custom Icon</label>
-                <select id="icon" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option value="">Default</option>
-                  <option value="check">Check</option>
-                  <option value="info">Info</option>
-                  <option value="warning">Warning</option>
-                  <option value="error">Error</option>
-                  <option value="heart">Heart</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Themes Tab -->
-          <div id="themesTab" class="tab-content hidden pt-4">
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              <div onclick="setTheme('classic')" class="theme-card bg-blue-500 text-white p-3 rounded-lg cursor-pointer flex items-center justify-center">
-                Classic
-              </div>
-              <div onclick="setTheme('flat')" class="theme-card bg-blue-600 text-white p-3 rounded-lg cursor-pointer flex items-center justify-center">
-                Flat
-              </div>
-              <div onclick="setTheme('glass')" class="theme-card bg-blue-400/30 backdrop-blur-md border border-blue-200 text-blue-800 p-3 rounded-lg cursor-pointer flex items-center justify-center">
-                Glass
-              </div>
-              <div onclick="setTheme('neon')" class="theme-card bg-blue-400 text-white shadow-lg shadow-blue-400/30 p-3 rounded-lg cursor-pointer flex items-center justify-center">
-                Neon
-              </div>
-              <div onclick="setTheme('material')" class="theme-card bg-blue-500 text-white shadow-md p-3 rounded-lg cursor-pointer flex items-center justify-center">
-                Material
-              </div>
-              <div onclick="setTheme('bubble')" class="theme-card bg-blue-400 text-white rounded-full p-3 cursor-pointer flex items-center justify-center">
-                Bubble
-              </div>
-              <div onclick="setTheme('retro')" class="theme-card bg-amber-500 text-white p-3 rounded-lg cursor-pointer flex items-center justify-center">
-                Retro
-              </div>
-              <div onclick="setTheme('gradient')" class="theme-card bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-lg cursor-pointer flex items-center justify-center">
-                Gradient
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Show Toast Button -->
-        <button onclick="showToast()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
-          <i class="fas fa-paper-plane"></i> Show Toast Notification
+    <!-- Footer with Action Buttons -->
+    <div class="bg-gray-50 p-4 border-t">
+      <div class="flex flex-wrap justify-center gap-3">
+        <button onclick="triggerToast('success')" 
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-md flex items-center transition-all hover:scale-105">
+          <i class="fas fa-check-circle mr-2"></i>Success Toast
         </button>
-      </div>
-
-      <!-- Right Panel -->
-      <div class="space-y-6">
-        <!-- Code Preview -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-              <i class="fas fa-code text-blue-500"></i>
-              Generated Code
-            </h2>
-            <button onclick="copyCode()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-lg flex items-center gap-1 transition-colors">
-              <i class="far fa-copy"></i> Copy
-            </button>
-          </div>
-          <pre id="previewCode" class="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-auto max-h-80 custom-scrollbar language-javascript"></pre>
-        </div>
-
-        <!-- History -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-              <i class="fas fa-history text-blue-500"></i>
-              Toast History
-            </h2>
-            <button onclick="clearHistory()" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-lg flex items-center gap-1 transition-colors">
-              <i class="fas fa-trash-alt"></i> Clear
-            </button>
-          </div>
-          <div id="historyList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-            <!-- History items will appear here -->
-          </div>
-        </div>
-
-        <!-- Quick Presets -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fas fa-magic text-blue-500"></i>
-            Quick Presets
-          </h2>
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="loadPreset('success')" class="bg-green-100 hover:bg-green-200 text-green-800 p-2 rounded-lg text-sm transition-colors flex items-center gap-1">
-              <i class="fas fa-check-circle"></i> Success
-            </button>
-            <button onclick="loadPreset('error')" class="bg-red-100 hover:bg-red-200 text-red-800 p-2 rounded-lg text-sm transition-colors flex items-center gap-1">
-              <i class="fas fa-times-circle"></i> Error
-            </button>
-            <button onclick="loadPreset('warning')" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 p-2 rounded-lg text-sm transition-colors flex items-center gap-1">
-              <i class="fas fa-exclamation-triangle"></i> Warning
-            </button>
-            <button onclick="loadPreset('info')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 p-2 rounded-lg text-sm transition-colors flex items-center gap-1">
-              <i class="fas fa-info-circle"></i> Info
-            </button>
-          </div>
-        </div>
+        <button onclick="triggerToast('error')" 
+                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-md flex items-center transition-all hover:scale-105">
+          <i class="fas fa-times-circle mr-2"></i>Error Toast
+        </button>
+        <button onclick="triggerToast('warning')" 
+                class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-md flex items-center transition-all hover:scale-105">
+          <i class="fas fa-exclamation-triangle mr-2"></i>Warning Toast
+        </button>
+        <button onclick="triggerToast('info')" 
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md flex items-center transition-all hover:scale-105">
+          <i class="fas fa-info-circle mr-2"></i>Info Toast
+        </button>
+        <button onclick="clearAllToasts()" 
+                class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg shadow-md flex items-center transition-all hover:scale-105">
+          <i class="fas fa-trash mr-2"></i>Clear All
+        </button>
+        <button onclick="showMultipleToasts()" 
+                class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md flex items-center transition-all hover:scale-105">
+          <i class="fas fa-layer-group mr-2"></i>Show Multiple
+        </button>
       </div>
     </div>
   </div>
 
   <script>
-    // Initialize UI
+    // Current toast type
+    let currentToastType = 'info';
+    
+    // Initialize
     document.addEventListener('DOMContentLoaded', function() {
-      setType('success'); // Default to success type
-      updateCodePreview();
+      // Update duration value display
+      document.getElementById('duration').addEventListener('input', function() {
+        document.getElementById('durationValue').textContent = this.value;
+      });
+      
+      // Update max toasts value display
+      document.getElementById('maxToasts').addEventListener('input', function() {
+        document.getElementById('maxToastsValue').textContent = this.value;
+      });
+      
+      // Show/hide custom sound URL input
+      document.getElementById('showSound').addEventListener('change', function() {
+        document.getElementById('customShowSoundContainer').classList.toggle('hidden', this.value !== 'custom');
+      });
+      
+      // Update preview when settings change
+      const previewInputs = ['toastMessage', 'themeSelect', 'animationSelect', 'positionSelect', 
+                           'progressSelect', 'showClose', 'showProgress', 'iconSelect', 'customIconColor'];
+      previewInputs.forEach(id => {
+        document.getElementById(id).addEventListener('change', updatePreview);
+      });
+      
+      // Initialize with a preview
+      setTimeout(updatePreview, 500);
     });
-
-    // Type selection
-    function setType(type) {
-      document.getElementById('type').value = type;
-      
-      // Update active button
-      document.querySelectorAll('.toast-type-btn').forEach(btn => {
-        btn.classList.remove('active', 'ring-2', 'ring-offset-2');
-      });
-      
-      const activeBtn = document.querySelector(`.${type}-btn`);
-      activeBtn.classList.add('active', 'ring-2', 'ring-offset-2');
-      
-      // Set appropriate ring color based on type
-      const colorMap = {
-        success: 'ring-green-500',
-        error: 'ring-red-500',
-        warning: 'ring-yellow-500',
-        info: 'ring-blue-500'
-      };
-      activeBtn.classList.add(colorMap[type]);
-      
-      // Update message placeholder based on type
-      const messageMap = {
-        success: 'Operation completed successfully!',
-        error: 'Something went wrong! Please try again.',
-        warning: 'Warning: This action cannot be undone.',
-        info: 'Information: New update available.'
-      };
-      document.getElementById('msg').value = messageMap[type] || 'Notification message';
-    }
-
-    // Theme selection
-    function setTheme(theme) {
-      document.getElementById('theme').value = theme;
-      
-      // Update active theme card
-      document.querySelectorAll('.theme-card').forEach(card => {
-        card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
-      });
-      
-      // Find the clicked theme card and highlight it
-      const themeCards = document.querySelectorAll('.theme-card');
-      for (let card of themeCards) {
-        if (card.textContent.trim().toLowerCase() === theme) {
-          card.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
-          break;
-        }
-      }
-    }
-
+    
     // Tab switching
     function switchTab(tabName) {
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`.tab-button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+      
       document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.add('hidden');
       });
-      document.getElementById(`${tabName}Tab`).classList.remove('hidden');
-      
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active', 'text-blue-600', 'border-blue-600');
-        btn.classList.add('text-gray-500', 'hover:text-gray-700');
+      document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+    }
+    
+    // Set toast type
+    function setToastType(type) {
+      currentToastType = type;
+      document.querySelectorAll('.toast-type-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-primary-500', 'ring-offset-2');
       });
-      
-      const activeTab = event.currentTarget;
-      activeTab.classList.add('active', 'text-blue-600', 'border-blue-600');
-      activeTab.classList.remove('text-gray-500', 'hover:text-gray-700');
-    }
-
-    // Toast history
-    let toastHistory = [];
-    const maxHistoryItems = 8;
-    
-    function addToHistory(config) {
-      toastHistory.unshift(config);
-      if (toastHistory.length > maxHistoryItems) {
-        toastHistory.pop();
-      }
-      updateHistoryDisplay();
+      document.querySelector(`.toast-type-btn[data-type="${type}"]`).classList.add('ring-2', 'ring-primary-500', 'ring-offset-2');
+      updatePreview();
     }
     
-    function updateHistoryDisplay() {
-      const historyList = document.getElementById('historyList');
-      historyList.innerHTML = '';
-      
-      if (toastHistory.length === 0) {
-        historyList.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">No history yet</p>';
-        return;
-      }
-      
-      toastHistory.forEach((item, index) => {
-        const historyItem = document.createElement('div');
-        historyItem.className = 'bg-gray-50 hover:bg-gray-100 p-3 rounded-lg cursor-pointer transition-colors group';
-        historyItem.innerHTML = `
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-medium px-2 py-1 rounded ${getTypeBadgeClass(item.tags[0])}">
-                ${item.tags[0]}
-              </span>
-              <span class="text-sm text-gray-700 truncate">${item.message.substring(0, 30)}${item.message.length > 30 ? '...' : ''}</span>
-            </div>
-            <button onclick="replayToast(${index}, event)" class="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-blue-600 transition-opacity">
-              <i class="fas fa-redo text-xs"></i>
-            </button>
-          </div>
-        `;
-        historyItem.addEventListener('click', () => replayToast(index));
-        historyList.appendChild(historyItem);
-      });
-    }
-    
-    function getTypeBadgeClass(type) {
-      const typeClasses = {
-        success: 'bg-green-100 text-green-800',
-        error: 'bg-red-100 text-red-800',
-        warning: 'bg-yellow-100 text-yellow-800',
-        info: 'bg-blue-100 text-blue-800'
-      };
-      return typeClasses[type] || 'bg-gray-100 text-gray-800';
-    }
-    
-    function replayToast(index, event) {
-      if (event) event.stopPropagation();
-      const config = toastHistory[index];
-      showToastWithConfig(config);
-    }
-    
-    function clearHistory() {
-      toastHistory = [];
-      updateHistoryDisplay();
-    }
-
-    // Toast functions
-    function showToast() {
-      const msg = document.getElementById('msg').value;
-      const type = document.getElementById('type').value;
-      const theme = document.getElementById('theme').value;
-      const anim = document.getElementById('anim').value;
-      const position = document.getElementById('position').value;
-      const duration = +document.getElementById('duration').value;
-      const progressStyle = document.getElementById('progress').value;
-      const showProgress = document.getElementById('progressCheck').checked;
-      const showClose = document.getElementById('closeCheck').checked;
-      const darkMode = document.getElementById('darkCheck').checked;
-      const queueMode = document.getElementById('replaceCheck').checked ? "replace" : "stack";
-      const icon = document.getElementById('icon').value;
-      const width = document.getElementById('width').value;
-      const maxWidth = document.getElementById('maxWidth').value;
-      const borderRadius = document.getElementById('borderRadius').value;
-      const padding = document.getElementById('padding').value;
-      const customClass = document.getElementById('customClass').value;
-      
-      const config = {
-        message: msg,
-        tags: [type],
-        options: {
-          theme,
-          animation: anim,
-          position,
-          duration,
-          showProgress,
-          progressStyle,
-          showClose,
-          queueMode,
-          darkMode,
-          icon,
-          width,
-          maxWidth,
-          borderRadius,
-          padding,
-          customClass
-        }
-      };
-      
-      addToHistory(config);
-      showToastWithConfig(config);
-    }
-    
-    function showToastWithConfig(config) {
-      const { message, tags, options } = config;
-      
-      initSuperToasts([{ message, tags }], options);
-      updateCodePreview(config);
-    }
-    
-    function updateCodePreview(config) {
-      if (!config) {
-        const themeElement = document.getElementById('theme');
-        config = {
-            message: document.getElementById('msg').value,
-            tags: [document.getElementById('type').value],
-            options: {
-                theme: themeElement ? themeElement.value : 'classic', // Add fallback
-                animation: document.getElementById('anim').value,
-                position: document.getElementById('position').value,
-                duration: +document.getElementById('duration').value,
-                showProgress: document.getElementById('progressCheck').checked,
-                progressStyle: document.getElementById('progress').value,
-                showClose: document.getElementById('closeCheck').checked,
-                queueMode: document.getElementById('replaceCheck').checked ? "replace" : "stack",
-                darkMode: document.getElementById('darkCheck').checked,
-                icon: document.getElementById('icon').value,
-                width: document.getElementById('width').value,
-                maxWidth: document.getElementById('maxWidth').value,
-                borderRadius: document.getElementById('borderRadius').value,
-                padding: document.getElementById('padding').value,
-                customClass: document.getElementById('customClass').value
-            }
-        };
-      }
-      
-      const optionsStr = JSON.stringify(config.options, null, 2)
-        .replace(/"([^"]+)":/g, '$1:')
-        .replace(/"(\d+)"/g, '$1');
-      
-      document.getElementById('previewCode').innerHTML = Prism.highlight(
-        `initSuperToasts([{ message: "${config.message}", tags: ["${config.tags[0]}"] }], ${optionsStr});`,
-        Prism.languages.javascript,
-        'javascript'
-      );
-    }
-    
-    function copyCode() {
-      const code = document.getElementById('previewCode').textContent;
-      navigator.clipboard.writeText(code).then(() => {
-        // Show a confirmation toast
-        initSuperToasts([{ message: "Code copied to clipboard!", tags: ["success"] }], {
-          theme: 'flat',
-          position: 'bottom-right',
-          duration: 2000
-        });
-      });
-    }
-    
-    // Show all types at once
-    function showAllTypes() {
-      const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
-      const types = ['success', 'error', 'warning', 'info'];
-      const themes = ['flat', 'glass', 'gradient', 'material'];
-      const animations = ['slide', 'fade', 'bounce', 'flip'];
-      
-      types.forEach((type, i) => {
-        setTimeout(() => {
-          initSuperToasts([{
-            message: `This is a ${type} message`,
-            tags: [type]
-          }], {
-            theme: themes[i % themes.length],
-            position: positions[i % positions.length],
-            animation: animations[i % animations.length],
-            duration: 3000,
-            showProgress: true
-          });
-        }, i * 500);
-      });
-    }
-    
-    // Random toast generator
-    function showRandomToast() {
+    // Randomize message
+    function randomizeMessage() {
       const messages = [
         "Action completed successfully!",
-        "Error: Operation failed",
-        "Warning: This cannot be undone",
-        "Information: New update available",
-        "File uploaded successfully",
-        "Connection timeout",
-        "Payment processed",
-        "Login failed - invalid credentials",
-        "Your account has been created",
-        "Storage limit reached"
+        "Oops! Something went wrong.",
+        "Warning: This action cannot be undone.",
+        "Did you know? ToastBox is awesome!",
+        "New notification just arrived!",
+        "Your settings have been saved.",
+        "Connection lost. Trying to reconnect...",
+        "Download complete!",
+        "Error 404: Toast not found",
+        "Welcome to ToastBox Playground!"
+      ];
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      document.getElementById('toastMessage').value = randomMessage;
+      updatePreview();
+    }
+    
+    // Update live preview
+    function updatePreview() {
+      const message = document.getElementById("toastMessage").value;
+      const theme = document.getElementById("themeSelect").value;
+      const animation = document.getElementById("animationSelect").value;
+      const position = document.getElementById("positionSelect").value;
+      const progressStyle = document.getElementById("progressSelect").value;
+      const showClose = document.getElementById("showClose").checked;
+      const showProgress = document.getElementById("showProgress").checked;
+      const icon = document.getElementById("iconSelect").value;
+      const iconColor = document.getElementById("customIconColor").value;
+      
+      // Generate preview HTML
+      const previewHTML = `
+        <div class="toastbox toastbox-${theme} toastbox-${currentToastType} toastbox-${position}" 
+             style="animation: toastbox-${animation}-in 0.5s forwards;">
+          <div class="toastbox-content">
+            ${icon ? `<i class="${icon} mr-2" style="color: ${iconColor}"></i>` : ''}
+            <span>${message || 'Preview message'}</span>
+            ${showClose ? '<button class="toastbox-close">&times;</button>' : ''}
+          </div>
+          ${showProgress ? `<div class="toastbox-progress toastbox-progress-${progressStyle}"></div>` : ''}
+        </div>
+      `;
+      
+      document.getElementById('toastPreview').innerHTML = previewHTML;
+      document.getElementById('toastPreview').classList.remove('opacity-0');
+      document.getElementById('emptyPreview').classList.add('hidden');
+      
+      // Trigger animation
+      setTimeout(() => {
+        document.getElementById('toastPreview').style.animation = 'none';
+        setTimeout(() => {
+          document.getElementById('toastPreview').style.animation = `toastbox-${animation}-in 0.5s forwards`;
+        }, 10);
+      }, 10);
+    }
+    
+    // Trigger toast with current settings
+    function triggerToast(type) {
+      const message = document.getElementById("toastMessage").value;
+      const theme = document.getElementById("themeSelect").value;
+      const animation = document.getElementById("animationSelect").value;
+      const position = document.getElementById("positionSelect").value;
+      const progressStyle = document.getElementById("progressSelect").value;
+      const showClose = document.getElementById("showClose").checked;
+      const showProgress = document.getElementById("showProgress").checked;
+      const duration = parseInt(document.getElementById("duration").value);
+      const queueMode = document.getElementById("queueMode").value;
+      const maxToasts = parseInt(document.getElementById("maxToasts").value);
+      const pauseBehavior = document.getElementById("pauseBehavior").value;
+      const rtlSupport = document.getElementById("rtlSupport").checked;
+      const draggable = document.getElementById("draggable").checked;
+      const closeOnClick = document.getElementById("closeOnClick").checked;
+      const pauseOnWindowBlur = document.getElementById("pauseOnWindowBlur").checked;
+      const showIcon = document.getElementById("showIcon").checked;
+      const newestOnTop = document.getElementById("newestOnTop").checked;
+      const customBgColor = document.getElementById("customBgColor").value;
+      const customTextColor = document.getElementById("customTextColor").value;
+      const customProgressColor = document.getElementById("customProgressColor").value;
+      const customBorderColor = document.getElementById("customBorderColor").value;
+      const icon = document.getElementById("iconSelect").value;
+      const iconColor = document.getElementById("customIconColor").value;
+      const customCSS = document.getElementById("customCSS").value;
+      const customHTML = document.getElementById("customHTML").value;
+      const onShowCallback = document.getElementById("onShowCallback").value;
+      const onHideCallback = document.getElementById("onHideCallback").value;
+      const onClickCallback = document.getElementById("onClickCallback").value;
+      const actionText = document.getElementById("actionText").value;
+      const actionUrl = document.getElementById("actionUrl").value;
+      const showSound = document.getElementById("showSound").value;
+      const customShowSound = document.getElementById("customShowSound").value;
+      
+      const options = {
+        theme,
+        animation,
+        position,
+        progressStyle,
+        showProgress,
+        showClose,
+        duration,
+        queueMode,
+        maxToasts,
+        pauseBehavior,
+        rtlSupport,
+        draggable,
+        closeOnClick,
+        pauseOnWindowBlur,
+        showIcon,
+        newestOnTop,
+        customColors: {
+          bg: customBgColor,
+          text: customTextColor,
+          progress: customProgressColor,
+          border: customBorderColor
+        },
+        icon: icon || undefined,
+        iconColor: iconColor || undefined,
+        customCSS: customCSS || undefined,
+        customHTML: customHTML || undefined,
+        onShow: onShowCallback ? new Function('toast', onShowCallback) : undefined,
+        onHide: onHideCallback ? new Function('toast', onHideCallback) : undefined,
+        onClick: onClickCallback ? new Function('toast', onClickCallback) : undefined,
+        action: actionText ? {
+          text: actionText,
+          url: actionUrl || undefined,
+          onClick: actionUrl ? undefined : (() => console.log('Action clicked'))
+        } : undefined,
+        sound: showSound ? {
+          show: showSound === 'custom' ? customShowSound : showSound
+        } : undefined
+      };
+      
+      showToast(message || `Default ${type} message`, type, options);
+    }
+    
+    // Show multiple toasts
+    function showMultipleToasts() {
+      const types = ['success', 'error', 'warning', 'info'];
+      const messages = [
+        "Task completed successfully",
+        "Failed to load resource",
+        "This action requires confirmation",
+        "New update available",
+        "Connection established",
+        "Invalid input detected",
+        "Storage almost full",
+        "Download in progress"
       ];
       
-      const types = ['success', 'error', 'warning', 'info'];
-      const themes = ['classic', 'flat', 'glass', 'neon', 'material', 'gradient'];
-      const anims = ['slide', 'fade', 'zoom', 'bounce', 'flip', 'pop'];
-      const positions = ['top-right', 'top-left', 'bottom-right', 'bottom-left', 'top-center'];
-      
-      const randomType = types[Math.floor(Math.random() * types.length)];
-      setType(randomType);
-      
-      document.getElementById('msg').value = messages[Math.floor(Math.random() * messages.length)];
-      document.getElementById('theme').value = themes[Math.floor(Math.random() * themes.length)];
-      document.getElementById('anim').value = anims[Math.floor(Math.random() * anims.length)];
-      document.getElementById('position').value = positions[Math.floor(Math.random() * positions.length)];
-      document.getElementById('duration').value = 2000 + Math.floor(Math.random() * 5000);
-      document.getElementById('progress').value = ['default', 'neon', 'glass', 'bold'][Math.floor(Math.random() * 4)];
-      document.getElementById('progressCheck').checked = Math.random() > 0.3;
-      document.getElementById('closeCheck').checked = Math.random() > 0.3;
-      document.getElementById('darkCheck').checked = Math.random() > 0.7;
-      document.getElementById('replaceCheck').checked = Math.random() > 0.7;
-      
-      showToast();
+      for (let i = 0; i < 4; i++) {
+        setTimeout(() => {
+          const randomType = types[Math.floor(Math.random() * types.length)];
+          const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+          triggerToast(randomType);
+        }, i * 800);
+      }
     }
     
-    function clearAllToasts() {
-      // This would depend on your toast library's API
-      console.log("Clear all toasts functionality would go here");
-      initSuperToasts([{ message: "All toasts cleared", tags: ["info"] }], {
-        theme: 'flat',
-        position: 'top-center',
-        duration: 2000
-      });
+    // Apply custom CSS
+    function applyCustomCSS() {
+      const css = document.getElementById("customCSS").value;
+      if (css) {
+        // Remove existing style tag if it exists
+        const existingStyle = document.getElementById('toastbox-custom-css');
+        if (existingStyle) {
+          existingStyle.remove();
+        }
+        
+        // Create new style tag
+        const style = document.createElement('style');
+        style.id = 'toastbox-custom-css';
+        style.textContent = css;
+        document.head.appendChild(style);
+        
+        // Show success toast
+        showToast('Custom CSS applied!', 'success', { duration: 2000 });
+      }
     }
     
-    // Preset loader
-    function loadPreset(preset) {
-      const presets = {
-        success: {
-          msg: "Operation completed successfully!",
-          type: "success",
-          theme: "flat",
-          anim: "slide",
-          position: "top-right",
-          duration: 3000,
-          progress: "default",
-          showProgress: true,
-          showClose: true,
-          darkMode: false,
-          replaceMode: false
-        },
-        error: {
-          msg: "Something went wrong! Please try again.",
-          type: "error",
-          theme: "flat",
-          anim: "bounce",
-          position: "top-center",
+    // Apply custom HTML
+    function applyCustomHTML() {
+      const html = document.getElementById("customHTML").value;
+      if (html) {
+        // Show toast with custom HTML
+        showToast('', 'info', {
+          customHTML: html,
           duration: 5000,
-          progress: "bold",
-          showProgress: true,
-          showClose: true,
-          darkMode: false,
-          replaceMode: false
+          showClose: true
+        });
+      }
+    }
+    
+    // Export configuration
+    function exportConfig() {
+      const config = {
+        message: document.getElementById("toastMessage").value,
+        type: currentToastType,
+        theme: document.getElementById("themeSelect").value,
+        animation: document.getElementById("animationSelect").value,
+        position: document.getElementById("positionSelect").value,
+        progressStyle: document.getElementById("progressSelect").value,
+        showClose: document.getElementById("showClose").checked,
+        showProgress: document.getElementById("showProgress").checked,
+        duration: parseInt(document.getElementById("duration").value),
+        queueMode: document.getElementById("queueMode").value,
+        maxToasts: parseInt(document.getElementById("maxToasts").value),
+        pauseBehavior: document.getElementById("pauseBehavior").value,
+        rtlSupport: document.getElementById("rtlSupport").checked,
+        draggable: document.getElementById("draggable").checked,
+        closeOnClick: document.getElementById("closeOnClick").checked,
+        pauseOnWindowBlur: document.getElementById("pauseOnWindowBlur").checked,
+        showIcon: document.getElementById("showIcon").checked,
+        newestOnTop: document.getElementById("newestOnTop").checked,
+        customColors: {
+          bg: document.getElementById("customBgColor").value,
+          text: document.getElementById("customTextColor").value,
+          progress: document.getElementById("customProgressColor").value,
+          border: document.getElementById("customBorderColor").value
         },
-        warning: {
-          msg: "Warning: This action cannot be undone.",
-          type: "warning",
-          theme: "retro",
-          anim: "flip",
-          position: "bottom-right",
-          duration: 4000,
-          progress: "striped",
-          showProgress: true,
-          showClose: true,
-          darkMode: false,
-          replaceMode: false
+        icon: document.getElementById("iconSelect").value,
+        iconColor: document.getElementById("customIconColor").value,
+        customCSS: document.getElementById("customCSS").value,
+        customHTML: document.getElementById("customHTML").value,
+        callbacks: {
+          onShow: document.getElementById("onShowCallback").value,
+          onHide: document.getElementById("onHideCallback").value,
+          onClick: document.getElementById("onClickCallback").value
         },
-        info: {
-          msg: "Information: New update available.",
-          type: "info",
-          theme: "glass",
-          anim: "fade",
-          position: "top-left",
-          duration: 3500,
-          progress: "glass",
-          showProgress: true,
-          showClose: true,
-          darkMode: false,
-          replaceMode: false
+        action: {
+          text: document.getElementById("actionText").value,
+          url: document.getElementById("actionUrl").value
+        },
+        sound: {
+          show: document.getElementById("showSound").value,
+          customShow: document.getElementById("customShowSound").value
         }
       };
       
-      const presetConfig = presets[preset];
-      if (!presetConfig) return;
+      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'toastbox-config.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
       
-      setType(presetConfig.type);
-      document.getElementById('msg').value = presetConfig.msg;
-      document.getElementById('theme').value = presetConfig.theme;
-      document.getElementById('anim').value = presetConfig.anim;
-      document.getElementById('position').value = presetConfig.position;
-      document.getElementById('duration').value = presetConfig.duration;
-      document.getElementById('progress').value = presetConfig.progress;
-      document.getElementById('progressCheck').checked = presetConfig.showProgress;
-      document.getElementById('closeCheck').checked = presetConfig.showClose;
-      document.getElementById('darkCheck').checked = presetConfig.darkMode;
-      document.getElementById('replaceCheck').checked = presetConfig.replaceMode;
+      showToast('Configuration exported!', 'success', { duration: 2000 });
+    }
+    
+    // Import configuration
+    function importConfig() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
       
-      updateCodePreview();
+      input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = event => {
+          try {
+            const config = JSON.parse(event.target.result);
+            
+            // Apply configuration
+            if (config.message) document.getElementById("toastMessage").value = config.message;
+            if (config.type) setToastType(config.type);
+            if (config.theme) document.getElementById("themeSelect").value = config.theme;
+            if (config.animation) document.getElementById("animationSelect").value = config.animation;
+            if (config.position) document.getElementById("positionSelect").value = config.position;
+            if (config.progressStyle) document.getElementById("progressSelect").value = config.progressStyle;
+            if (config.showClose !== undefined) document.getElementById("showClose").checked = config.showClose;
+            if (config.showProgress !== undefined) document.getElementById("showProgress").checked = config.showProgress;
+            if (config.duration) document.getElementById("duration").value = config.duration;
+            if (config.queueMode) document.getElementById("queueMode").value = config.queueMode;
+            if (config.maxToasts) document.getElementById("maxToasts").value = config.maxToasts;
+            if (config.pauseBehavior) document.getElementById("pauseBehavior").value = config.pauseBehavior;
+            if (config.rtlSupport !== undefined) document.getElementById("rtlSupport").checked = config.rtlSupport;
+            if (config.draggable !== undefined) document.getElementById("draggable").checked = config.draggable;
+            if (config.closeOnClick !== undefined) document.getElementById("closeOnClick").checked = config.closeOnClick;
+            if (config.pauseOnWindowBlur !== undefined) document.getElementById("pauseOnWindowBlur").checked = config.pauseOnWindowBlur;
+            if (config.showIcon !== undefined) document.getElementById("showIcon").checked = config.showIcon;
+            if (config.newestOnTop !== undefined) document.getElementById("newestOnTop").checked = config.newestOnTop;
+            
+            if (config.customColors) {
+              if (config.customColors.bg) document.getElementById("customBgColor").value = config.customColors.bg;
+              if (config.customColors.text) document.getElementById("customTextColor").value = config.customColors.text;
+              if (config.customColors.progress) document.getElementById("customProgressColor").value = config.customColors.progress;
+              if (config.customColors.border) document.getElementById("customBorderColor").value = config.customColors.border;
+            }
+            
+            if (config.icon) document.getElementById("iconSelect").value = config.icon;
+            if (config.iconColor) document.getElementById("customIconColor").value = config.iconColor;
+            if (config.customCSS) document.getElementById("customCSS").value = config.customCSS;
+            if (config.customHTML) document.getElementById("customHTML").value = config.customHTML;
+            
+            if (config.callbacks) {
+              if (config.callbacks.onShow) document.getElementById("onShowCallback").value = config.callbacks.onShow;
+              if (config.callbacks.onHide) document.getElementById("onHideCallback").value = config.callbacks.onHide;
+              if (config.callbacks.onClick) document.getElementById("onClickCallback").value = config.callbacks.onClick;
+            }
+            
+            if (config.action) {
+              if (config.action.text) document.getElementById("actionText").value = config.action.text;
+              if (config.action.url) document.getElementById("actionUrl").value = config.action.url;
+            }
+            
+            if (config.sound) {
+              if (config.sound.show) document.getElementById("showSound").value = config.sound.show;
+              if (config.sound.customShow) document.getElementById("customShowSound").value = config.sound.customShow;
+            }
+            
+            // Update UI
+            document.getElementById('durationValue').textContent = document.getElementById("duration").value;
+            document.getElementById('maxToastsValue').textContent = document.getElementById("maxToasts").value;
+            document.getElementById('customShowSoundContainer').classList.toggle('hidden', 
+              document.getElementById("showSound").value !== 'custom');
+            
+            updatePreview();
+            showToast('Configuration imported!', 'success', { duration: 2000 });
+          } catch (error) {
+            showToast('Failed to import configuration', 'error', { duration: 2000 });
+            console.error(error);
+          }
+        };
+        
+        reader.readAsText(file);
+      };
+      
+      input.click();
     }
   </script>
 </body>
