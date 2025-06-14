@@ -1322,9 +1322,10 @@
 
         // Animate in after a short delay
         setTimeout(() => {
-            toast.classList.remove(animations[options.animation][0]);
-            toast.classList.add(animations[options.animation][1]);
+            toast.classList.remove(...animations[options.animation][0].split(" "));
+            toast.classList.add(...animations[options.animation][1].split(" "));
         }, 10);
+
 
         // Auto-dismiss after duration
         setTimeout(() => {
